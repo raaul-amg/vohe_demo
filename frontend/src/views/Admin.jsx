@@ -8,13 +8,13 @@ const socket = io();
 
 export default function Admin(){
 
-  const { usuario } = useAuth();
+  // const { usuario } = useAuth();
 
-    if (usuario === null){
-      return <Login />
-    } else if (usuario.admin !== true) {
-      return <Public />
-    }
+  //  if (usuario === null){
+  //    return <Login />
+  //  } else if (usuario.admin !== true) {
+  //    return <Public />
+  //  }
 
   const {tema, setTema} = useState('');
   const [nombre, setNombre] = useState('');

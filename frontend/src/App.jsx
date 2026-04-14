@@ -7,11 +7,13 @@ import './App.css'
 
 function App() {
 
-  const {usuario} = useAuth();
+  return <Admin/>
 
-  if (!usuario) { return <Login/> } 
-  else if (usuario.admin === true) { return <Admin/> } 
-  else if (usuario.admin === false) { return <Public/> } 
+  // const {usuario} = useAuth();
+
+  // if (!usuario) { return <Login/> } 
+  // else if (usuario.admin === true) { return <Admin/> } 
+  // else if (usuario.admin === false) { return <Public/> } 
   
 }
 
