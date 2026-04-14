@@ -126,6 +126,22 @@ io.on("connection", async (socket) => {
 
   })
 
+  socket.on('eliminarTurno', async (datos) => {
+
+    let connection;
+
+    try {
+      connection = await pool.getConnection();
+      await connection.query(
+        "UPDATE turnos SET activo = false WHERE id = ?", [datos]);
+      await update();
+    } 
+
+    catch (error){console.error(error);} 
+    finally {if (connection) connection.release();}
+
+  })
+
   socket.on('login', async (datos) => {
 
     let connection;
@@ -162,7 +178,7 @@ io.on("connection", async (socket) => {
 
 });
 
-const port = process.env.port || 5173;
+const port = process.env.port || 8080;
 
 server.listen(port, () => {
   console.log(`Example app listening on port ${port}`)

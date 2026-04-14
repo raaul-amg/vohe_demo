@@ -1,6 +1,4 @@
-const { useEffect } = require("react")
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
 import { useAuth } from '../config/Auth';
 
@@ -77,7 +75,11 @@ export default function Admin(){
     setTema('');
   };
 
-  const cambiarNombre = (e) => setNombre(e);
+  const filtroRepresentante = (e) => {
+    let representante = e.split(' - ');
+    setNombre(representante[0]);
+    setDelegacion(representante[1]);
+  }
 
   const agregarTurno = (intervencion) => {
     if (!nombre.trim() || !delegacion.trim()) return alert("Falta nombre o delegación");
@@ -117,7 +119,7 @@ export default function Admin(){
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '100px' }}>
-      <h2>Admin View</h2>
+      <h1>Panel de control</h1>
       
       <form onSubmit = {cambiarTema}>
 
@@ -133,41 +135,68 @@ export default function Admin(){
         <datalist id="listaTemas">
           {odd.map((t, i) => <option key={i} value={t.titulo} />)}
         </datalist>
+
+        <select id="min" onChange={(e) => setMinutos(e.target.value)}>
+          <option value="null">Sin duración</option>
+          <option value="1">1 min</option>
+          <option value="2">2 min</option>
+          <option value="3">3 min</option>
+          <option value="4">4 min</option>
+          <option value="5" selected="selected">5 min</option>
+        </select>
+
         <button type="submit">Enviar</button>
 
       </form>
 
-      <form onSubmit = {agregarTurno}>
-        <h3>Nombre</h3>
+      <form>
+        <h3>Agregar manualmente a un representante</h3>
         <input 
           type="text"
-          list="listaNombres"
-          value={nombre}
-          onChange={(e) => setNombre(e.target.value)}
-          placeholder="Nombre"
+          list="listaRepresentantes"
+          onChange={(e) => filtroRepresentante(e.target.value)}
+          placeholder="Representante"
         />
-        <datalist id="listaNombres">{representantes.map((r, i) => <option key={i} value={`${r.nombre} (${r.delegacion})`} />)}</datalist>
-        <input 
-          type="text"
-          value={delegacion}
-          onChange={(e) => setDelegacion(e.target.value)}
-          placeholder="Delegación"
-        />
-
-        <select onChange={(e) => setMinutos(e.target.value)}>
+        <datalist id="listaRepresentantes">
+          {representantes.map((r, i) => <option key={i} value={`${r.nombre} - ${r.delegacion}`}/>)}
+        </datalist>
+        
+        <br/>
+        
+        <select value={minutos} onChange={(e) => setMinutos(Number(e.target.value))}>
+          <option value="null">Sin duración</option>
           <option value="1">1 min</option>
           <option value="2">2 min</option>
           <option value="3">3 min</option>
           <option value="4">4 min</option>
           <option value="5">5 min</option>
         </select>
+
+        <br/>
         
-        <button type="submit" onClick={() => agregarTurno('Apunte técnico')}>Apunte técnico</button>
-        <button type="submit" onClick={() => agregarTurno('Punto de información')}>Punto de información</button>
-        <button type="submit" onClick={() => agregarTurno('Respuesta por alusión directa')}>Respuesta por alusión directa</button>
-        <button type="submit" onClick={() => agregarTurno('Respuesta normal')}>Respuesta normal</button>
-        <button type="submit" onClick={() => agregarTurno('Intervención')}>Intervención</button>
+        <button type="reset" onClick={() => agregarTurno('Apunte técnico')}>Apunte técnico</button>
+        <button type="reset" onClick={() => agregarTurno('Punto de información')}>Punto de información</button>
+        <button type="reset" onClick={() => agregarTurno('Respuesta por alusión directa')}>Respuesta por alusión directa</button>
+        <button type="reset" onClick={() => agregarTurno('Respuesta normal')}>Respuesta normal</button>
+        <button type="reset" onClick={() => agregarTurno('Intervención')}>Intervención</button>
       </form>
+
+      <h2>Turnos</h2>
+
+      <div>
+
+        {asamblea.turnos.map((turno, index) => 
+        <div key={turno.id}>
+          <div>
+            <span>{index + 1 + ". "}</span>
+            <span>{`${turno.nombre} - ${turno.delegacion}: `}</span>
+            <span>{turno.intervencion}</span>
+          </div>
+          <button type="button" onClick={() => socket.emit('eliminarTurno', turno.id)}>Eliminar</button>
+        </div>
+      )}
+
+      </div>
 
     </div>
   );
