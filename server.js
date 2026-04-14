@@ -8,11 +8,11 @@ const cors = require('cors')
 const app = express()
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'frontend/dist')))
+// app.use(express.static(path.join(__dirname, 'frontend/dist')))
 
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend/dist/index.html'))
-});
+// app.get('/', (req, res) => {
+//  res.sendFile(path.join(__dirname, 'frontend/dist/index.html'))
+// });
 
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
@@ -160,7 +160,7 @@ io.on("connection", async (socket) => {
 
 });
 
-const port = process.env.port || 8080;
+const port = process.env.port || 5173;
 
 server.listen(port, () => {
   console.log(`Example app listening on port ${port}`)

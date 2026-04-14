@@ -21,7 +21,6 @@ export default function Admin(){
   const [nombre, setNombre] = useState('');
   const [delegacion, setDelegacion] = useState('');
   const [minutos, setMinutos] = useState(3);
-  const [horaPeticion, setHoraPeticion] = useState(0);
   const [tiempo, setTiempo] = useState(0);
 
   const [asamblea, setAsamblea] = useState({
@@ -147,10 +146,11 @@ export default function Admin(){
           onChange={(e) => setNombre(e.target.value)}
           placeholder="Nombre"
         />
+        <datalist id="listaNombres">{representantes.map((r, i) => <option key={i} value={`${r.nombre} (${r.delegacion})`} />)}</datalist>
         <input 
           type="text"
           value={delegacion}
-          onChange={(e) => setNombre(e.target.value)}
+          onChange={(e) => setDelegacion(e.target.value)}
           placeholder="Delegación"
         />
 
