@@ -12,7 +12,7 @@ export default function Public() {
     });
     
     const [asamblea, setAsamblea] = useState({
-        cola: [],
+        turnos: [],
         hablando: null,
         tema: {titulo: "Cargando"},
         turnoAbierto: true,

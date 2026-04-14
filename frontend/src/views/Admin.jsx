@@ -25,7 +25,7 @@ export default function Admin(){
   const [tiempo, setTiempo] = useState(0);
 
   const [asamblea, setAsamblea] = useState({
-      cola: [],
+      turnos: [],
       historial: [],
       hablando: null,
       timerActivo: false,
@@ -147,9 +147,6 @@ export default function Admin(){
           onChange={(e) => setNombre(e.target.value)}
           placeholder="Nombre"
         />
-        <datalist id="listaNombres">
-          {representantes.map((t, i) => <option key={i} value={`${t.nombre} (${t.delegacion})`} />)}
-        </datalist>
         <input 
           type="text"
           value={delegacion}
@@ -158,11 +155,11 @@ export default function Admin(){
         />
 
         <select>
-          <option value="1" onChange={(e) => setMinutos(e.target.value)}></option>
-          <option value="2" onChange={(e) => setMinutos(e.target.value)}></option>
-          <option value="3" onChange={(e) => setMinutos(e.target.value)}></option>
-          <option value="4" onChange={(e) => setMinutos(e.target.value)}></option>
-          <option value="5" onChange={(e) => setMinutos(e.target.value)}></option>
+          <option value="1" onChange={(e) => setMinutos(e.target.value)}>1 min</option>
+          <option value="2" onChange={(e) => setMinutos(e.target.value)}>2 min</option>
+          <option value="3" onChange={(e) => setMinutos(e.target.value)}>3 min</option>
+          <option value="4" onChange={(e) => setMinutos(e.target.value)}>4 min</option>
+          <option value="5" onChange={(e) => setMinutos(e.target.value)}>5 min</option>
         </select>
         
         <button type="submit" onClick={() => agregarTurno('Apunte técnico')}>Apunte técnico</button>

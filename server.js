@@ -56,7 +56,7 @@ io.on("connection", async (socket) => {
 
       io.emit('estado_actualizado', {
         ...asamblea,
-        tema: tema,
+        tema: tema[0].tema,
         turnos: turnos,
         historial: historialDB,
       })
@@ -77,7 +77,7 @@ io.on("connection", async (socket) => {
       connection = await pool.getConnection();
       await connection.query("UPDATE tema SET activo = false");
       await connection.query(
-        "INSERT INTO tema (tema, archivo, activo) VALUES (?, ?, ?)",
+        "INSERT INTO tema (tema, archivo) VALUES (?, ?)",
         [datos.tema, datos.archivo]
       );
       await update();
