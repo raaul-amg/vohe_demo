@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { io } from 'socket.io-client';
 import { useAuth } from '../config/Auth';
 
-const url = import.meta.env ? "http://localhost:8080" : '/';
+const url = import.meta.env.DEV ? "http://localhost:8080" : '/';
 const socket = io(url);
 
 export default function Admin(){
@@ -17,7 +17,7 @@ export default function Admin(){
   //    return <Public />
   //  }
 
-  const {tema, setTema} = useState('');
+  const [tema, setTema] = useState('');
   const [nombre, setNombre] = useState('');
   const [delegacion, setDelegacion] = useState('');
   const [minutos, setMinutos] = useState(3);
@@ -67,6 +67,8 @@ export default function Admin(){
 
   const cambiarTema = () => {
     
+    e.preventDefault();
+
     if(!tema.trim()) return;
 
     const temaEncontrado = odd.find(t => t.titulo === tema);

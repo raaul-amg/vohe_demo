@@ -39,10 +39,10 @@ io.on("connection", async (socket) => {
   console.log("Client connected (yay!)", socket.id);
 
   const update = async () => {
-    const connection = await createPool.getConnection();
+    const connection = await pool.getConnection();
 
     try {
-      const turnosDB = await connection.query("SELECT * FROM turnos WHERE activo = true, ORDER BY prioridad DESC, hora_peticion ASC");
+      const turnosDB = await connection.query("SELECT * FROM turnos WHERE activo = true ORDER BY prioridad DESC, hora_peticion ASC");
       const historialDB = await connection.query("SELECT * FROM historial ORDER BY hora_fin DESC");
 
       const turnos = turnosDB.map(item => ({
@@ -54,9 +54,9 @@ io.on("connection", async (socket) => {
       }))
 
       io.emit('estado_actualizado', {
-        ...asambleaInfo,
+        ...asamblea,
         turnos: turnos,
-        historial: historial
+        historial: historialDB,
       })
       
     } 
@@ -111,7 +111,7 @@ io.on("connection", async (socket) => {
     try {
       connection = await pool.getConnection();
       await connection.query(
-        "UPDATE turnos SET activo = false WHERE (?, ?)",
+        "UPDATE turnos SET activo = false WHERE nombre = ? AND delegacion = ?)",
         [datos.nombre, datos.delegacion]
       );
       await update();
@@ -138,10 +138,10 @@ io.on("connection", async (socket) => {
 
       if (datos.password === sql[0].password){
         socket.emit('resLogin', {
-          usuario: sql.usuario,
-          delegacion: sql.delegacion,
-          rol: sql.rol,
-          admin: sql.admin,
+          usuario: sql[0].usuario,
+          delegacion: sql[0].delegacion,
+          rol: sql[0].rol,
+          admin: sql[0].admin,
         })
       } else {
         socket.emit('resLogin', false)
