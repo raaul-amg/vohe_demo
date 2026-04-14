@@ -29,7 +29,7 @@ export default function Admin(){
       historial: [],
       hablando: null,
       timerActivo: false,
-      tema: { titulo: '', archivo: ''},
+      tema: '',
       turnoAbierto: true,
     });
 
@@ -123,7 +123,7 @@ export default function Admin(){
       <form onSubmit = {cambiarTema}>
 
         <h3>Tema</h3>
-        <h2>{asamblea.tema?.titulo || "Sin tema seleccionado"}</h2>
+        <h2>{asamblea.tema || "Sin tema seleccionado"}</h2>
         <input 
           type="text"
           list="listaTemas" 
