@@ -65,13 +65,13 @@ export default function Admin(){
 
   }, []);
 
-  const cambiarTema = () => {
+  const cambiarTema = (e) => {
     
     e.preventDefault();
     if(!tema.trim()) return;
 
     socket.emit('actualizarTema', {
-      titulo: tema, 
+      tema: tema, 
       archivo: null,
     });
 
@@ -154,12 +154,12 @@ export default function Admin(){
           placeholder="Delegación"
         />
 
-        <select>
-          <option value="1" onChange={(e) => setMinutos(e.target.value)}>1 min</option>
-          <option value="2" onChange={(e) => setMinutos(e.target.value)}>2 min</option>
-          <option value="3" onChange={(e) => setMinutos(e.target.value)}>3 min</option>
-          <option value="4" onChange={(e) => setMinutos(e.target.value)}>4 min</option>
-          <option value="5" onChange={(e) => setMinutos(e.target.value)}>5 min</option>
+        <select onChange={(e) => setMinutos(e.target.value)}>
+          <option value="1">1 min</option>
+          <option value="2">2 min</option>
+          <option value="3">3 min</option>
+          <option value="4">4 min</option>
+          <option value="5">5 min</option>
         </select>
         
         <button type="submit" onClick={() => agregarTurno('Apunte técnico')}>Apunte técnico</button>
