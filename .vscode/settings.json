@@ -1,0 +1,20 @@
+{
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true,
+        "**/flutter/ephemeral": true,
+        "**/Flutter/ephemeral": true,
+        "**/.symlinks": true,
+        "**/.plugin_symlinks": true,
+        "frontend/node_modules": true,
+        "**/node_modules": true,
+        "frontend/*.*": true,
+        "node_modules": true,
+        "**/.vscode": true,
+        ".vscode": true
+    },
+    "explorerExclude.backup": {}
+}
