@@ -42,7 +42,7 @@ io.on("connection", async (socket) => {
     const connection = await pool.getConnection();
 
     try {
-      const turnosDB = await connection.query("SELECT * FROM turnos WHERE activo = true ORDER BY prioridad DESC, hora_peticion ASC");
+      const turnosDB = await connection.query("SELECT * FROM turnos WHERE activo = true ORDER BY prioridad DESC, tiempo_peticion ASC");
       const historialDB = await connection.query("SELECT * FROM historial ORDER BY hora_fin DESC");
       const tema = await connection.query("SELECT * FROM tema WHERE activo = true")
       
