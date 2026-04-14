@@ -143,5 +143,5 @@ const port = process.env.port || 8080;
 
 server.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
-  console.log(`http://localhost:${PORT}`);
+  console.log(`http://localhost:${port}`);
 })
