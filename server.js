@@ -67,6 +67,25 @@ io.on("connection", async (socket) => {
 
   await update();
 
+  socket.on('actualizarTema', async (datos) => {
+
+    let connection;
+
+    try {
+      connection = await pool.getConnection();
+      await connection.query("UPDATE tema SET activo = false");
+      await connection.query(
+        "INSERT INTO tema (tema, archivo, activo) VALUES (?, ?, ?)",
+        [datos.tema, datos.archivo, datos.activo]
+      );
+      await update();
+    } 
+
+    catch (err){console.error(err);} 
+    finally {if (connection) connection.release();}
+    
+  });
+
   socket.on('agregarTurno', async (datos) => {
 
     let connection;

@@ -71,7 +71,7 @@ export default function Admin(){
 
     const temaEncontrado = odd.find(t => t.titulo === tema);
     const payload = temaEncontrado ? temaEncontrado : {titulo: inputTema, archivo: null};
-    socket.emit('actualizar_tema', payload);
+    socket.emit('actualizarTema', payload);
     setTema('');
   };
 
