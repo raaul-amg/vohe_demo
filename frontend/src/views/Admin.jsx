@@ -1,6 +1,6 @@
 const { useEffect } = require("react")
 
-import {useState, useEffect} from 'react';
+import { useState } from 'react';
 import { io } from 'socket.io-client';
 import { useAuth } from '../config/Auth';
 
@@ -167,7 +167,7 @@ export default function Admin(){
         <button type="submit" onClick={() => agregarTurno('Respuesta normal')}>Respuesta normal</button>
         <button type="submit" onClick={() => agregarTurno('Intervención')}>Intervención</button>
       </form>
-      
+
     </div>
   );
 

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAuth } from '';
+import { useAuth } from '../config/Auth';
 
 export default function Login() {
     const [usuario, setUsuario] = useState('');
