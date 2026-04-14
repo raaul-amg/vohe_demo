@@ -44,7 +44,7 @@ io.on("connection", async (socket) => {
     try {
       const turnosDB = await connection.query("SELECT * FROM turnos WHERE activo = true ORDER BY prioridad DESC, tiempo_peticion ASC");
       const historialDB = await connection.query("SELECT * FROM historial ORDER BY hora_fin DESC");
-      const tema = await connection.query("SELECT * FROM tema WHERE activo = true")
+      const temaDB = await connection.query("SELECT * FROM tema WHERE activo = true")
       
       const turnos = turnosDB.map(item => ({
         id: item.id,
@@ -54,9 +54,13 @@ io.on("connection", async (socket) => {
         prioridad: item.prioridad,
       }))
 
+      const tema = temaDB.length > 0 
+      ? { titulo: temaDB[0].tema, archivo: temaDB[0].archivo } 
+      : { titulo: 'Sin tema', archivo: '' };
+
       io.emit('estado_actualizado', {
         ...asamblea,
-        tema: tema[0].tema,
+        tema: tema,
         turnos: turnos,
         historial: historialDB,
       })
