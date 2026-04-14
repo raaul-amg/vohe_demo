@@ -68,12 +68,13 @@ export default function Admin(){
   const cambiarTema = () => {
     
     e.preventDefault();
-
     if(!tema.trim()) return;
 
-    const temaEncontrado = odd.find(t => t.titulo === tema);
-    const payload = temaEncontrado ? temaEncontrado : {titulo: inputTema, archivo: null};
-    socket.emit('actualizarTema', payload);
+    socket.emit('actualizarTema', {
+      titulo: tema, 
+      archivo: null,
+    });
+
     setTema('');
   };
 
@@ -124,7 +125,7 @@ export default function Admin(){
         <h3>Tema</h3>
         <h2>{asamblea.tema?.titulo || "Sin tema seleccionado"}</h2>
         <input 
-          type="text" 
+          type="text"
           list="listaTemas" 
           value={tema} 
           onChange={(e) => setTema(e.target.value)} 

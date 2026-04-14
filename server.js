@@ -30,7 +30,7 @@ const pool = mariadb.createPool({
 let asamblea = {
   hablando: null,
   timerActivo: false,
-  tema: { titulo: ''},
+  tema: { titulo: '', archivo: ''},
   turnoAbierto: true,
 };
 
@@ -44,7 +44,8 @@ io.on("connection", async (socket) => {
     try {
       const turnosDB = await connection.query("SELECT * FROM turnos WHERE activo = true ORDER BY prioridad DESC, hora_peticion ASC");
       const historialDB = await connection.query("SELECT * FROM historial ORDER BY hora_fin DESC");
-
+      const tema = await connection.query("SELECT * FROM tema WHERE activo = true")
+      
       const turnos = turnosDB.map(item => ({
         id: item.id,
         nombre: item.nombre,
@@ -55,6 +56,7 @@ io.on("connection", async (socket) => {
 
       io.emit('estado_actualizado', {
         ...asamblea,
+        tema: tema,
         turnos: turnos,
         historial: historialDB,
       })
@@ -76,7 +78,7 @@ io.on("connection", async (socket) => {
       await connection.query("UPDATE tema SET activo = false");
       await connection.query(
         "INSERT INTO tema (tema, archivo, activo) VALUES (?, ?, ?)",
-        [datos.tema, datos.archivo, datos.activo]
+        [datos.tema, datos.archivo]
       );
       await update();
     } 
