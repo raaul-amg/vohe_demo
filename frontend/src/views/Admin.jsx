@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { io } from 'socket.io-client';
 import { useAuth } from '../config/Auth';
 
-const socket = io();
+const url = import.meta.env ? "http://localhost:8080" : '/';
+const socket = io(url);
 
 export default function Admin(){
 
