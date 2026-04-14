@@ -62,7 +62,7 @@ io.on("connection", async (socket) => {
       })
       
     } 
-    catch (error) {console.error("Error:", err)} 
+    catch (error) {console.error("Error:", error)} 
     finally {if (connection) connection.release()}
 
   };
@@ -83,7 +83,7 @@ io.on("connection", async (socket) => {
       await update();
     } 
 
-    catch (err){console.error(err);} 
+    catch (error){console.error(error);} 
     finally {if (connection) connection.release();}
     
   });
@@ -101,7 +101,7 @@ io.on("connection", async (socket) => {
       await update();
     } 
 
-    catch (err){console.error(err);} 
+    catch (error){console.error(error);} 
     finally {if (connection) connection.release();}
     
   });
@@ -119,7 +119,7 @@ io.on("connection", async (socket) => {
       await update();
     } 
 
-    catch (err){console.error(err);} 
+    catch (error){console.error(error);} 
     finally {if (connection) connection.release();}
 
   })
@@ -150,8 +150,8 @@ io.on("connection", async (socket) => {
       }
     } 
 
-    catch (err){
-      console.error(err);
+    catch (error){
+      console.error(error);
       socket.emit('resLogin', false)
     } 
     finally {if (connection) connection.release();}
