@@ -14,7 +14,7 @@ export default function Public() {
     const [asamblea, setAsamblea] = useState({
         turnos: [],
         hablando: null,
-        tema: {titulo: "Cargando"},
+        tema: '',
         turnoAbierto: true,
     });
     const [tiempo, setTiempo] = useState(0);
@@ -55,4 +55,35 @@ export default function Public() {
         const secs = seconds % 60;
         return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
     };
+
+    return (
+      <div>
+        <h1>Vista pública</h1>
+
+        <div>
+          <h2>Tema</h2>
+          <h3>{asamblea.tema || "Sin tema seleccionado"}</h3>
+        </div>
+
+        <br />
+
+        <div>
+          <h2>Turnos</h2>
+
+          <div>
+            {asamblea.turnos.map((turno, index) => (
+              <div key={turno.id}>
+
+                <div>
+                  <span>{index + 1 + ". "}</span>
+                  <span>{`${turno.nombre} - ${turno.delegacion}: `}</span>
+                  <span>{turno.intervencion}</span>
+                </div>
+
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
 }

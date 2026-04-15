@@ -99,6 +99,7 @@ export default function Admin(){
         intervencion: intervencion,
         prioridad: prioridades[intervencion],
         minutos: minutos,
+        solicitud: false,
         // que hay de los demás atributos???
     });
 

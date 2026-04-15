@@ -5,9 +5,24 @@ import Admin from './views/Admin'
 import Public from './views/Public'
 import './App.css'
 
-function App() {
+export default function vista() {
 
-  return <Admin/>
+    const [vistaActual, setVistaActual] = useState('menu');
+
+    if (vistaActual === 'admin'){
+      return <Admin/>
+    }
+
+    if (vistaActual === 'public'){
+      return <Public/>
+    }
+
+  return (
+    <div>
+      <button onClick={() => setVistaActual('admin')}>Vista admin</button>
+      <button onClick={() => setVistaActual('public')}>Vista público</button>
+    </div>
+  )
 
   // const {usuario} = useAuth();
 
@@ -16,5 +31,3 @@ function App() {
   // else if (usuario.admin === false) { return <Public/> } 
   
 }
-
-export default App
