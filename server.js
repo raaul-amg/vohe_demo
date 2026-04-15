@@ -46,7 +46,8 @@ io.on("connection", async (socket) => {
     try {
       const turnosDB = await connection.query("SELECT * FROM turnos WHERE activo = true ORDER BY prioridad DESC, tiempo_peticion ASC");
       const historialDB = await connection.query("SELECT * FROM historial ORDER BY hora_fin DESC");
-      const tema = await connection.query("SELECT * FROM tema WHERE activo = true")
+      const temaDB = await connection.query("SELECT * FROM tema WHERE activo = true");
+      let tema = "Sin tema seleccionado";
       
       const turnos = turnosDB.map(item => ({
         id: item.id,
@@ -57,9 +58,13 @@ io.on("connection", async (socket) => {
         solicitud: item.solicitud,
       }))
 
+      if (temaDB && temaDB.length > 0){
+        tema = temaDB[0].tema
+      }
+
       io.emit('estado_actualizado', {
         ...asamblea,
-        tema: tema[0].tema,
+        tema: tema,
         turnos: turnos,
         historial: historialDB,
       })
@@ -85,10 +90,18 @@ io.on("connection", async (socket) => {
     try {
       connection = await pool.getConnection();
       await connection.query("UPDATE tema SET activo = false");
-      await connection.query(
-        "INSERT INTO tema (tema, archivo, activo) VALUES (?, ?, ?)",
-        [datos.tema, datos.archivo, true]
-      );
+
+      const check = await connection.query("SELECT COUNT(*) AS existe FROM tema WHERE tema = ?", [datos.tema])
+
+      if (check[0].existe === 0){
+        await connection.query(
+          "INSERT INTO tema (tema, archivo, activo) VALUES (?, ?, ?)",
+          [datos.tema, datos.archivo, true]
+        );
+      } else {
+        await connection.query("UPDATE tema SET activo = true WHERE tema = ?", [datos.tema])
+      }
+      
       await update();
     } 
 

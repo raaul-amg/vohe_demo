@@ -24,24 +24,34 @@ export default function Public() {
     const [tiempo, setTiempo] = useState(0);
 
     useEffect(() => {
-
+    
         socket.on('estado_actualizado', (estado) =>{
-            setAsamblea(estado)
-            setConectado(true);
+          setAsamblea(estado)
+          setConectado(true);
         });
-
+    
         socket.on('tiempo', (t) => setTiempo(t));
-
+    
+        socket.on('connect', () => {
+          socket.emit('pedirEstado');
+        });
+    
+        socket.on('disconnect', () => {
+          setConectado(false);
+        });
+    
         if (socket.connected) {
-            socket.emit('pedirEstado');
+          socket.emit('pedirEstado');
         }
-
+    
         return () => {
-            socket.off('estado_actualizado');
-            socket.off('tiempo');
+          socket.off('estado_actualizado');
+          socket.off('tiempo');
+          socket.off('connect');
+          socket.off('disconnect');
         };
-
-    }, []);
+    
+      }, []);
 
     const pedirTurno = (datos) => {
         

@@ -61,13 +61,23 @@ export default function Admin(){
 
     socket.on('tiempo', (t) => setTiempo(t));
 
+    socket.on('connect', () => {
+      socket.emit('pedirEstado');
+    });
+
+    socket.on('disconnect', () => {
+      setConectado(false);
+    });
+
     if (socket.connected) {
       socket.emit('pedirEstado');
     }
 
     return () => {
-        socket.off('estado_actualiado');
-        socket.off('tiempo');
+      socket.off('estado_actualizado');
+      socket.off('tiempo');
+      socket.off('connect');
+      socket.off('disconnect');
     };
 
   }, []);
@@ -95,7 +105,7 @@ export default function Admin(){
     if (!nombre.trim() || !delegacion.trim()) return alert("Falta nombre o delegación");
     
     const prioridades = {
-        'Apunte Técnico': 5,
+        'Apunte técnico': 5,
         'Punto de información': 4,
         'Respuesta por alusión directa': 3,
         'Respuesta normal': 2,
