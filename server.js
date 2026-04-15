@@ -135,8 +135,8 @@ io.on("connection", async (socket) => {
     try {
       connection = await pool.getConnection();
       await connection.query(
-        "INSERT INTO turnos (nombre, delegacion, intervencion, prioridad, minutos, solicitud) VALUES (?, ?, ?, ?, ?, ?)",
-        [datos.nombre, datos.delegacion, datos.intervencion, datos.prioridad, datos.minutos, datos.solicitud]
+        "INSERT INTO turnos (nombre, delegacion, intervencion, prioridad, solicitud) VALUES (?, ?, ?, ?, ?)",
+        [datos.nombre, datos.delegacion, datos.intervencion, datos.prioridad, datos.solicitud]
       );
       await update();
     }
