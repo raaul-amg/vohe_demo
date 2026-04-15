@@ -54,6 +54,7 @@ io.on("connection", async (socket) => {
         delegacion: item.delegacion,
         intervencion: item.intervencion,
         prioridad: item.prioridad,
+        solicitud: item.solicitud,
       }))
 
       io.emit('estado_actualizado', {
@@ -70,6 +71,12 @@ io.on("connection", async (socket) => {
   };
 
   await update();
+
+  socket.on('pedirUpdate', async () => {
+
+    await update();
+
+  });
 
   socket.on('actualizarTema', async (datos) => {
 
@@ -97,8 +104,8 @@ io.on("connection", async (socket) => {
     try {
       connection = await pool.getConnection();
       await connection.query(
-        "INSERT INTO turnos (nombre, delegacion, intervencion, prioridad, minutos) VALUES (?, ?, ?, ?, ?)",
-        [datos.nombre, datos.delegacion, datos.intervencion, datos.prioridad, datos.minutos]
+        "INSERT INTO turnos (nombre, delegacion, intervencion, prioridad, minutos, solicitud) VALUES (?, ?, ?, ?, ?, ?)",
+        [datos.nombre, datos.delegacion, datos.intervencion, datos.prioridad, datos.minutos, datos.solicitud]
       );
       await update();
     } 
@@ -107,6 +114,24 @@ io.on("connection", async (socket) => {
     finally {if (connection) connection.release();}
     
   });
+
+  socket.on('pedirTurno', async (datos) => {
+
+    let connection;
+    
+    try {
+      connection = await pool.getConnection();
+      await connection.query(
+        "INSERT INTO turnos (nombre, delegacion, intervencion, prioridad, minutos, solicitud) VALUES (?, ?, ?, ?, ?, ?)",
+        [datos.nombre, datos.delegacion, datos.intervencion, datos.prioridad, datos.minutos, datos.solicitud]
+      );
+      await update();
+    }
+
+    catch (error){console.error(error)}
+    finally {if (connection) connection.release();}
+
+  })
 
   socket.on('cortarTurno', async (datos) => {
 

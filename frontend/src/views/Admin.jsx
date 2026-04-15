@@ -55,6 +55,8 @@ export default function Admin(){
     socket.on('estado_actualizado', (estado) => setAsamblea(estado));
     socket.on('tiempo', (t) => setTiempo(t));
 
+    socket.emit('pedirUpdate');
+
     return () => {
         socket.off('estado_actualiado');
         socket.off('tiempo');

@@ -22,6 +22,9 @@ export default function Public() {
     useEffect(() => {
         socket.on('estado_actualizado', (estado) => setAsamblea(estado));
         socket.on('tiempo', (t) => setTiempo(t));
+
+        socket.emit('pedirUpdate');
+
         return () => {
             socket.off('estado_actualizado');
             socket.off('tiempo');
@@ -38,11 +41,12 @@ export default function Public() {
             'Intervención': 1,
         };
 
-        socket.emit('agregarTurno', {
+        socket.emit('pedirTurno', {
             nombre: nombre,
             delegacion: delegacion,
             tipo: tipo,
-            prioridad: prioridades[tipo]
+            prioridad: prioridades[tipo],
+            solicitud: true
         });
 
         setNombre('');
