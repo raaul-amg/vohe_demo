@@ -53,34 +53,22 @@ export default function Admin(){
   ];
 
   useEffect(() => {
-
-    socket.on('estado_actualizado', (estado) =>{
-      setAsamblea(estado)
-      setConectado(true);
-    });
-
-    socket.on('tiempo', (t) => setTiempo(t));
-
-    socket.on('connect', () => {
-      socket.emit('pedirEstado');
-    });
-
-    socket.on('disconnect', () => {
-      setConectado(false);
-    });
-
-    if (socket.connected) {
-      socket.emit('pedirEstado');
-    }
-
-    return () => {
-      socket.off('estado_actualizado');
-      socket.off('tiempo');
-      socket.off('connect');
-      socket.off('disconnect');
-    };
-
-  }, []);
+      
+          socket.on('estado_actualizado', (estado) =>{
+            setAsamblea(estado)
+            setConectado(true);
+          });
+      
+          socket.on('tiempo', (t) => setTiempo(t));
+  
+          socket.emit('pedirUpdate')
+      
+          return () => {
+            socket.off('estado_actualizado');
+            socket.off('tiempo');
+          };
+      
+        }, []);
 
   const cambiarTema = (e) => {
     

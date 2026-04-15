@@ -153,8 +153,8 @@ io.on("connection", async (socket) => {
     try {
       connection = await pool.getConnection();
       await connection.query(
-        "UPDATE turnos SET activo = false WHERE nombre = ? AND delegacion = ?)",
-        [datos.nombre, datos.delegacion]
+        "UPDATE turnos SET activo = false WHERE id = ? AND nombre = ? AND delegacion = ?",
+        [datos.id, datos.nombre, datos.delegacion]
       );
       await update();
     } 
