@@ -21,6 +21,8 @@ export default function Admin(){
   const [minutos, setMinutos] = useState(3);
   const [tiempo, setTiempo] = useState(0);
 
+  const [conectado, setConectado] = useState(false);
+
   const [asamblea, setAsamblea] = useState({
       turnos: [],
       historial: [],
@@ -52,10 +54,16 @@ export default function Admin(){
 
   useEffect(() => {
 
-    socket.on('estado_actualizado', (estado) => setAsamblea(estado));
+    socket.on('estado_actualizado', (estado) =>{
+      setAsamblea(estado)
+      setConectado(true);
+    });
+
     socket.on('tiempo', (t) => setTiempo(t));
 
-    socket.emit('pedirUpdate');
+    if (socket.connected) {
+      socket.emit('pedirEstado');
+    }
 
     return () => {
         socket.off('estado_actualiado');

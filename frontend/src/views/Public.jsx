@@ -5,11 +5,14 @@ const url = import.meta.env.DEV ? "http://localhost:8080" : '/';
 const socket = io(url);
 
 export default function Public() {
+    
     const [usuario, setUsuario] = useState({
-        nombre: '',
-        delegación: '',
+        nombre: 'Raúl',
+        delegación: 'UPM',
         admin: false,
     });
+
+    const [conectado, setConectado] = useState(false);
     
     const [asamblea, setAsamblea] = useState({
         turnos: [],
@@ -17,18 +20,27 @@ export default function Public() {
         tema: '',
         turnoAbierto: true,
     });
+
     const [tiempo, setTiempo] = useState(0);
 
     useEffect(() => {
-        socket.on('estado_actualizado', (estado) => setAsamblea(estado));
+
+        socket.on('estado_actualizado', (estado) =>{
+            setAsamblea(estado)
+            setConectado(true);
+        });
+
         socket.on('tiempo', (t) => setTiempo(t));
 
-        socket.emit('pedirUpdate');
+        if (socket.connected) {
+            socket.emit('pedirEstado');
+        }
 
         return () => {
             socket.off('estado_actualizado');
             socket.off('tiempo');
         };
+
     }, []);
 
     const pedirTurno = (datos) => {
@@ -74,6 +86,14 @@ export default function Public() {
         <div>
           <h2>Turnos</h2>
 
+        <div>
+            <button type="button" onClick={() => pedirTurno('Apunte técnico')}>Apunte técnico</button>
+            <button type="button" onClick={() => pedirTurno('Punto de información')}>Punto de información</button>
+            <button type="button" onClick={() => pedirTurno('Respuesta por alusión directa')}>Respuesta por alusión directa</button>
+            <button type="button" onClick={() => pedirTurno('Respuesta normal')}>Respuesta normal</button>
+            <button type="button" onClick={() => pedirTurno('Intervención')}>Intervención</button>
+        </div>
+
           <div>
             {asamblea.turnos.map((turno, index) => (
               <div key={turno.id}>
@@ -81,6 +101,7 @@ export default function Public() {
                 <div>
                   <span>{index + 1 + ". "}</span>
                   <span>{`${turno.nombre} - ${turno.delegacion}: `}</span>
+                  <span>{turno.intervencion}</span>
                   <span>{turno.intervencion}</span>
                 </div>
 
