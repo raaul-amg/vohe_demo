@@ -91,7 +91,7 @@ io.on("connection", async (socket) => {
 
       let check = await connection.query("SELECT COUNT(*) AS existe FROM tema WHERE tema = ?", [datos.tema])
 
-      if (check[0].existe === 0){
+      if (Number(check[0].existe) === 0){
         await connection.query(
           "INSERT INTO tema (tema, archivo, activo) VALUES (?, ?, ?)",
           [datos.tema, datos.archivo, true]
@@ -106,6 +106,8 @@ io.on("connection", async (socket) => {
     catch (error){console.error(error);} 
     finally {if (connection) connection.release();}
     
+    await update();
+
   });
 
   socket.on('agregarTurno', async (datos) => {
