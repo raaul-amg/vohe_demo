@@ -1,4 +1,4 @@
-require('dotenv').config();
+require("dotenv").config();
 
 const express = require('express')
 const http = require('http')
@@ -8,6 +8,7 @@ const path = require('path')
 const cors = require('cors')
 
 const app = express()
+
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'frontend/dist')))
@@ -26,6 +27,7 @@ const pool = mariadb.createPool({
   database: process.env.DB_NAME,
   port: process.env.DB_PORT || 3306,
   connectionLimit: 5,
+  connectTimeout: 10000,
   ssl: { rejectUnauthorized: false },
 });
 
