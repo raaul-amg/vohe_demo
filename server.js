@@ -26,7 +26,7 @@ const pool = mariadb.createPool({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   port: process.env.DB_PORT || 3306,
-  connectionLimit: 5,
+  connectionLimit: 20,
   connectTimeout: 10000,
   ssl: { rejectUnauthorized: false },
 });
@@ -34,7 +34,7 @@ const pool = mariadb.createPool({
 let asamblea = {
   hablando: null,
   timerActivo: false,
-  tema: { titulo: '', archivo: ''},
+  tema: '',
   turnoAbierto: true,
 };
 
@@ -80,20 +80,16 @@ io.on("connection", async (socket) => {
   await update();
 
   socket.on('pedirUpdate', async () => {
-
     await update();
-
   });
 
   socket.on('actualizarTema', async (datos) => {
-
     let connection;
-
     try {
       connection = await pool.getConnection();
       await connection.query("UPDATE tema SET activo = false");
 
-      const check = await connection.query("SELECT COUNT(*) AS existe FROM tema WHERE tema = ?", [datos.tema])
+      let check = await connection.query("SELECT COUNT(*) AS existe FROM tema WHERE tema = ?", [datos.tema])
 
       if (check[0].existe === 0){
         await connection.query(
