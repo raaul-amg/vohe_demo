@@ -10,7 +10,6 @@ export default function Login() {
     const enviar = (e) => {
         e.preventDefault();
         if (password.trim() === '') return;
-
         login(usuario, password);
     };
 

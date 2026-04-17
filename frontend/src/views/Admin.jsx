@@ -7,13 +7,13 @@ const socket = io(url);
 
 export default function Admin(){
 
-  // const { usuario } = useAuth();
+  const { usuario } = useAuth();
 
-  //  if (usuario === null){
-  //    return <Login />
-  //  } else if (usuario.admin !== true) {
-  //    return <Public />
-  //  }
+  if (usuario === null){
+    return <Login />
+  } else if (usuario.admin !== true) {
+    return <Public />
+  }
 
   const [tema, setTema] = useState('');
   const [nombre, setNombre] = useState('');
@@ -26,8 +26,6 @@ export default function Admin(){
   const [asamblea, setAsamblea] = useState({
       turnos: [],
       historial: [],
-      hablando: null,
-      timerActivo: false,
       tema: '',
       turnoAbierto: true,
     });
@@ -54,7 +52,7 @@ export default function Admin(){
 
   useEffect(() => {
       
-          socket.on('estado_actualizado', (estado) =>{
+          socket.on('estadoActualizado', (estado) => {
             setAsamblea(estado)
             setConectado(true);
           });
@@ -64,7 +62,7 @@ export default function Admin(){
           socket.emit('pedirUpdate')
       
           return () => {
-            socket.off('estado_actualizado');
+            socket.off('estadoActualizado');
             socket.off('tiempo');
           };
       
@@ -193,7 +191,10 @@ export default function Admin(){
       <h2>Turnos</h2>
 
       <div>
+        <span>{asamblea.turnoAbierto ? <button type="button" onClick={() => socket.emit('cerrarTurno')}>Cerrar Turno</button> : <button type="button" onClick={() => socket.emit('abrirTurno')}>Abrir Turno</button>}</span>
+      </div>
 
+      <div>
         {asamblea.turnos.map((turno, index) => 
         <div key={turno.id}>
           <div>
@@ -204,7 +205,6 @@ export default function Admin(){
           <button type="button" onClick={() => socket.emit('eliminarTurno', turno.id)}>Eliminar</button>
         </div>
       )}
-
       </div>
 
     </div>

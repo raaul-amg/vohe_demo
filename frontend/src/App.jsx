@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from './config/Auth'
+import { socket } from './socket'
 import Login from './views/Login'
 import Admin from './views/Admin'
 import Public from './views/Public'
@@ -7,27 +8,26 @@ import './App.css'
 
 export default function vista() {
 
-    const [vistaActual, setVistaActual] = useState('menu');
+  const {usuario} = useAuth();
 
-    if (vistaActual === 'admin'){
-      return <Admin/>
+  useEffect(() => {
+    const savedToken = localStorage.getItem('cettoken');
+    if (savedToken){
+      socket.emit('verificacion', savedToken)
     }
 
-    if (vistaActual === 'public'){
-      return <Public/>
-    }
+    socket.on('resVerificacion', (datos) => {
+      if (datos){
+        setUsuario(datos);
+      } else {
+        localStorage.removeItem('cettoken');
+      }
+    });
 
-  return (
-    <div>
-      <button onClick={() => setVistaActual('admin')}>Vista admin</button>
-      <button onClick={() => setVistaActual('public')}>Vista público</button>
-    </div>
-  )
+    return () => socket.off('resVerificacion')
+  }, []);
 
-  // const {usuario} = useAuth();
-
-  // if (!usuario) { return <Login/> } 
-  // else if (usuario.admin === true) { return <Admin/> } 
-  // else if (usuario.admin === false) { return <Public/> } 
-  
+  if (!usuario) { return <Login/> }
+  else if (usuario.admin === true) { return <Admin/> } 
+  else { return <Public/> } 
 }

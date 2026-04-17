@@ -6,26 +6,22 @@ const socket = io(url);
 
 export default function Public() {
     
-    const [usuario, setUsuario] = useState({
-        nombre: 'Raúl',
-        delegacion: 'UPM',
-        admin: false,
-    });
+    const { usuario } = useAuth();
 
     const [conectado, setConectado] = useState(false);
     
     const [asamblea, setAsamblea] = useState({
-        turnos: [],
-        hablando: null,
-        tema: '',
-        turnoAbierto: true,
+      turnos: [],
+      historial: [],
+      tema: '',
+      turnoAbierto: true,
     });
 
     const [tiempo, setTiempo] = useState(0);
 
     useEffect(() => {
     
-        socket.on('estado_actualizado', (estado) =>{
+        socket.on('estadoActualizado', (estado) =>{
           setAsamblea(estado)
           setConectado(true);
         });
@@ -35,7 +31,7 @@ export default function Public() {
         socket.emit('pedirUpdate')
     
         return () => {
-          socket.off('estado_actualizado');
+          socket.off('estadoActualizado');
           socket.off('tiempo');
         };
     
@@ -98,12 +94,17 @@ export default function Public() {
           <h2>Turnos</h2>
 
         <div>
-            <button type="button" onClick={() => pedirTurno('Apunte técnico')}>Apunte técnico</button>
-            <button type="button" onClick={() => pedirTurno('Punto de información')}>Punto de información</button>
-            <button type="button" onClick={() => pedirTurno('Respuesta por alusión directa')}>Respuesta por alusión directa</button>
-            <button type="button" onClick={() => pedirTurno('Respuesta normal')}>Respuesta normal</button>
-            <button type="button" onClick={() => pedirTurno('Intervención')}>Intervención</button>
+          <span>
+          {asamblea.turnoAbierto ? ( <> 
+          <button type="button" onClick={() => pedirTurno('Apunte técnico')}>Apunte técnico</button>
+          <button type="button" onClick={() => pedirTurno('Punto de información')}>Punto de información</button>
+          <button type="button" onClick={() => pedirTurno('Respuesta por alusión directa')}>Respuesta por alusión directa</button>
+          <button type="button" onClick={() => pedirTurno('Respuesta normal')}>Respuesta normal</button>
+          <button type="button" onClick={() => pedirTurno('Intervención')}>Intervención</button></> ) : ( <span>Turno cerrado (womp womp)</span> )}
+          </span>
         </div>
+
+        <br/>
 
           <div>
             {asamblea.turnos.map((turno, index) => (

@@ -3,9 +3,12 @@ require("dotenv").config();
 const express = require('express')
 const http = require('http')
 const { Server } = require('socket.io')
-const mariadb = require('mariadb')
+const mysql = require('mysql2')
 const path = require('path')
 const cors = require('cors')
+
+const jwt = require('jsonwebtoken')
+const key = process.env.JWT_KEY
 
 const app = express()
 
@@ -20,7 +23,7 @@ app.get('/', (req, res) => {
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
 
-const pool = mariadb.createPool({
+const pool = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
@@ -32,8 +35,6 @@ const pool = mariadb.createPool({
 });
 
 let asamblea = {
-  hablando: null,
-  timerActivo: false,
   tema: '',
   turnoAbierto: true,
 };
@@ -64,11 +65,12 @@ io.on("connection", async (socket) => {
         tema = temaDB[0].tema
       }
 
-      io.emit('estado_actualizado', {
+      io.emit('estadoActualizado', {
         ...asamblea,
-        tema: tema,
         turnos: turnos,
         historial: historialDB,
+        tema: tema,
+        turnoAbierto: temaDB[0].abierto
       })
       
     } 
@@ -100,6 +102,36 @@ io.on("connection", async (socket) => {
         await connection.query("UPDATE tema SET activo = true WHERE tema = ?", [datos.tema])
       }
       
+      await update();
+    } 
+
+    catch (error){console.error(error);} 
+    finally {if (connection) connection.release();}
+    
+    await update();
+
+  });
+
+  socket.on('cerrarTurno', async () => {
+    let connection;
+    try {
+      connection = await pool.getConnection();
+      await connection.query("UPDATE tema SET abierto = false WHERE activo = true")
+      await update();
+    } 
+
+    catch (error){console.error(error);} 
+    finally {if (connection) connection.release();}
+    
+    await update();
+
+  });
+
+  socket.on('abrirTurno', async () => {
+    let connection;
+    try {
+      connection = await pool.getConnection();
+      await connection.query("UPDATE tema SET abierto = true WHERE activo = true")
       await update();
     } 
 
@@ -186,32 +218,40 @@ io.on("connection", async (socket) => {
 
     try {
       connection = await pool.getConnection();
-      const usuario = datos.usuario;
       const sql = await connection.query("SELECT * FROM usuarios WHERE usuario = ?", [datos.usuario])
 
-      if (sql.length === 0){
-        socket.emit('resLogin', false);
+      if (sql.length === 0 || datos.password !== sql[0].password){
+        io.emit('resLogin', false);
         return;
       }
-
-      if (datos.password === sql[0].password){
-        socket.emit('resLogin', {
-          usuario: sql[0].usuario,
-          delegacion: sql[0].delegacion,
-          rol: sql[0].rol,
-          admin: sql[0].admin,
-        })
-      } else {
-        socket.emit('resLogin', false)
+      const loggedInUser = {
+        usuario: sql[0].usuario,
+        nombre: sql[0].nombre,
+        delegacion: sql[0].delegacion,
+        rol: sql[0].rol,
+        admin: sql[0].admin,
       }
+
+      const token = jwt.sign(loggedInUser, key, {expiresIn: '8h'});
+      
+      socket.emit('resLogin', {...loggedInUser, token: token})
+
     } 
 
     catch (error){
       console.error(error);
-      socket.emit('resLogin', false)
+      io.emit('resLogin', false)
     } 
     finally {if (connection) connection.release();}
 
+  });
+
+  socket.on('verificacion', (token) => {
+    try {
+      const decodedUser = jwt.verify(token, key);
+      socket.emit('resVerificacion', decodedUser);
+    } 
+    catch (error){socket.emit('resVerificacion', false)}
   })
 
 });
