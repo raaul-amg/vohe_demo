@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from './config/Auth'
-import { socket } from './socket'
+import { io } from 'socket.io-client';
 import Login from './views/Login'
 import Admin from './views/Admin'
 import Public from './views/Public'
 import './App.css'
+
+const url = import.meta.env.DEV ? "http://localhost:8080" : '/';
+const socket = io(url);
 
 export default function vista() {
 
