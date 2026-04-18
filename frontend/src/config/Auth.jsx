@@ -1,10 +1,16 @@
-// Ejemplo de cómo debería ser tu AuthContext (resumido)
 import { createContext, useContext, useState } from 'react';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [usuario, setUsuario] = useState(null);
+  
+  const [usuario, setUsuario] = useState({
+      usuario: '',
+      nombre: '',
+      delegacion: '',
+      rol: '',
+      admin: false,
+    });
 
   return (
     <AuthContext.Provider value={{ usuario, setUsuario }}>

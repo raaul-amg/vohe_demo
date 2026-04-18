@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { io } from 'socket.io-client'
+import { useAuth } from '../config/Auth';
 
 const url = import.meta.env.DEV ? "http://localhost:8080" : '/';
 const socket = io(url);
 
 export default function Public() {
     
-    const { usuario } = useAuth();
+    const { usuario, setUsuario } = useAuth();
 
     const [conectado, setConectado] = useState(false);
     
@@ -79,9 +80,23 @@ export default function Public() {
         return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
     };
 
+    const cerrarSesion = () => {
+      localStorage.removeItem("ceettoken");
+      setUsuario(null);
+    }
+
     return (
       <div>
         <h1>Vista pública</h1>
+
+        <div>
+          <h4>Quien soy</h4>
+          <ul>
+            <li>{usuario.nombre}</li>
+            <li>{usuario.delegacion}</li>
+            <li>{usuario.rol}</li>
+          </ul>
+        </div>
 
         <div>
           <h2>Tema</h2>
@@ -121,6 +136,7 @@ export default function Public() {
             ))}
           </div>
         </div>
+        <button type="button" onClick={cerrarSesion}>Cerrar sesión</button>
       </div>
     );
 }

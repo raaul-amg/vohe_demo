@@ -3,7 +3,7 @@ require("dotenv").config();
 const express = require('express')
 const http = require('http')
 const { Server } = require('socket.io')
-const mysql = require('mysql2')
+const mysql = require('mysql2/promise')
 const path = require('path')
 const cors = require('cors')
 
@@ -29,10 +29,22 @@ const pool = mysql.createPool({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   port: process.env.DB_PORT || 3306,
-  connectionLimit: 20,
+
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
   connectTimeout: 10000,
+
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 10000,
   ssl: { rejectUnauthorized: false },
 });
+
+pool.on('error', (err) => {
+  if (err.code === 'ECONNRESET') {
+    console.error('Database connection was reset')
+  }
+})
 
 let asamblea = {
   tema: '',
@@ -47,9 +59,9 @@ io.on("connection", async (socket) => {
     const connection = await pool.getConnection();
 
     try {
-      const turnosDB = await connection.query("SELECT * FROM turnos WHERE activo = true ORDER BY prioridad DESC, tiempo_peticion ASC");
-      const historialDB = await connection.query("SELECT * FROM historial ORDER BY hora_fin DESC");
-      const temaDB = await connection.query("SELECT * FROM tema WHERE activo = true");
+      const [turnosDB] = await connection.query("SELECT * FROM turnos WHERE activo = true ORDER BY prioridad DESC, tiempo_peticion ASC;");
+      const [historialDB] = await connection.query("SELECT * FROM historial ORDER BY hora_fin DESC;");
+      const [temaDB] = await connection.query("SELECT * FROM tema WHERE activo = true;");
       let tema = "Sin tema seleccionado";
       
       const turnos = turnosDB.map(item => ({
@@ -91,7 +103,7 @@ io.on("connection", async (socket) => {
       connection = await pool.getConnection();
       await connection.query("UPDATE tema SET activo = false");
 
-      let check = await connection.query("SELECT COUNT(*) AS existe FROM tema WHERE tema = ?", [datos.tema])
+      let [check] = await connection.query("SELECT COUNT(*) AS existe FROM tema WHERE tema = ?", [datos.tema])
 
       if (Number(check[0].existe) === 0){
         await connection.query(
@@ -218,13 +230,14 @@ io.on("connection", async (socket) => {
 
     try {
       connection = await pool.getConnection();
-      const sql = await connection.query("SELECT * FROM usuarios WHERE usuario = ?", [datos.usuario])
+      const [sql] = await connection.query("SELECT * FROM usuarios WHERE usuario = ?", [datos.usuario])
 
       if (sql.length === 0 || datos.password !== sql[0].password){
         io.emit('resLogin', false);
         return;
       }
-      const loggedInUser = {
+
+      const userData = {
         usuario: sql[0].usuario,
         nombre: sql[0].nombre,
         delegacion: sql[0].delegacion,
@@ -232,9 +245,9 @@ io.on("connection", async (socket) => {
         admin: sql[0].admin,
       }
 
-      const token = jwt.sign(loggedInUser, key, {expiresIn: '8h'});
+      const token = jwt.sign(userData, key, {expiresIn: '8h'});
       
-      socket.emit('resLogin', {...loggedInUser, token: token})
+      socket.emit('resLogin', {userData: userData, token: token})
 
     } 
 

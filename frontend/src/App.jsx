@@ -9,28 +9,30 @@ import './App.css'
 const url = import.meta.env.DEV ? "http://localhost:8080" : '/';
 const socket = io(url);
 
-export default function vista() {
+export default function App() {
 
-  const {usuario} = useAuth();
+  const { usuario, setUsuario } = useAuth();
 
   useEffect(() => {
-    const savedToken = localStorage.getItem('cettoken');
+    const savedToken = localStorage.getItem('ceettoken');
     if (savedToken){
       socket.emit('verificacion', savedToken)
+    } else {
+      setUsuario(null)
     }
 
     socket.on('resVerificacion', (datos) => {
       if (datos){
         setUsuario(datos);
       } else {
-        localStorage.removeItem('cettoken');
+        localStorage.removeItem("ceettoken");
       }
     });
 
     return () => socket.off('resVerificacion')
   }, []);
 
-  if (!usuario) { return <Login/> }
-  else if (usuario.admin === true) { return <Admin/> } 
+  if (usuario === null) { return <Login/> }
+  else if (usuario.admin === Number(true)) { return <Admin/> } 
   else { return <Public/> } 
 }

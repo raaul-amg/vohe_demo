@@ -7,13 +7,7 @@ const socket = io(url);
 
 export default function Admin(){
 
-  const { usuario } = useAuth();
-
-  if (usuario === null){
-    return <Login />
-  } else if (usuario.admin !== true) {
-    return <Public />
-  }
+  const { usuario, setUsuario } = useAuth();
 
   const [tema, setTema] = useState('');
   const [nombre, setNombre] = useState('');
@@ -120,6 +114,11 @@ export default function Admin(){
     return `${m}:${s < 10 ? '0' : ''}${s}`;
   };
 
+  const cerrarSesion = () => {
+      localStorage.removeItem("ceettoken");
+      setUsuario(null);
+    }
+
   const exportarHistorial = () => {
     // a ver como lo hacemos...
   }
@@ -206,6 +205,8 @@ export default function Admin(){
         </div>
       )}
       </div>
+
+      <button type="button" onClick={cerrarSesion}>Cerrar sesión</button>
 
     </div>
   );
