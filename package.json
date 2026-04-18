@@ -13,8 +13,10 @@
   "dependencies": {
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.3.2",
     "jsonwebtoken": "^9.0.3",
     "mysql2": "^3.22.1",
+    "rate-limiter-flexible": "^11.0.1",
     "react-router-dom": "^7.14.1",
     "socket.io": "^4.8.3"
   }

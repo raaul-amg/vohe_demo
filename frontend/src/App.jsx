@@ -12,10 +12,20 @@ const socket = io(url);
 export default function App() {
 
   const { usuario, setUsuario } = useAuth();
-  const [cargando, setCargando] = useState(true);
+  // const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
     const savedToken = localStorage.getItem('ceettoken');
+
+    socket.on('error', (mensaje) => alert(mensaje));
+
+    // socket.on('connect_error', (err) => {
+    //   console.log("Error de conexión:", err.message);
+    //   alert("Has recargado demasiadas veces. Inténtalo más tarde.");
+    //   setCargando(false);
+    //   setUsuario(null);
+    //   socket.disconnect(); 
+    // });
 
     socket.on('resVerificacion', (datos) => {
       if (datos){
