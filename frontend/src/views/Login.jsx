@@ -1,9 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../config/Auth';
-import { io } from 'socket.io-client';
-
-const url = import.meta.env.DEV ? "http://localhost:8080" : '/';
-const socket = io(url);
+import { socket } from '../config/socket'
 
 export default function Login() {
 
@@ -27,8 +24,14 @@ export default function Login() {
     useEffect(() => {
 
       socket.on('resLogin', (datos) => {
-        setUsuario(datos.userData);
+
+        if (!datos) {
+          alert("Usuario o contraseña incorrectos");
+          return;
+        }
+
         localStorage.setItem('ceettoken', datos.token);
+        setUsuario(datos.userData);
       })
 
       return () => {

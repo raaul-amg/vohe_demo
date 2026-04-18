@@ -1,9 +1,6 @@
 import { useState, useEffect } from "react";
-import { io } from 'socket.io-client'
 import { useAuth } from '../config/Auth';
-
-const url = import.meta.env.DEV ? "http://localhost:8080" : '/';
-const socket = io(url);
+import { socket } from '../config/socket'
 
 export default function Public() {
     
@@ -80,7 +77,8 @@ export default function Public() {
         return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
     };
 
-    const cerrarSesion = () => {
+    const cerrarSesion = (e) => {
+      e.preventDefault();
       localStorage.removeItem("ceettoken");
       setUsuario(null);
     }

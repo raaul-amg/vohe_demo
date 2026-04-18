@@ -1,9 +1,6 @@
 import { useState, useEffect } from 'react';
-import { io } from 'socket.io-client';
 import { useAuth } from '../config/Auth';
-
-const url = import.meta.env.DEV ? "http://localhost:8080" : '/';
-const socket = io(url);
+import { socket } from '../config/socket'
 
 export default function Admin(){
 
@@ -114,7 +111,8 @@ export default function Admin(){
     return `${m}:${s < 10 ? '0' : ''}${s}`;
   };
 
-  const cerrarSesion = () => {
+  const cerrarSesion = (e) => {
+      e.preventDefault();
       localStorage.removeItem("ceettoken");
       setUsuario(null);
     }
@@ -126,6 +124,15 @@ export default function Admin(){
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '100px' }}>
       <h1>Panel de control</h1>
+
+      <div>
+          <h4>Quien soy</h4>
+          <ul>
+            <li>{usuario.nombre}</li>
+            <li>{usuario.delegacion}</li>
+            <li>{usuario.rol}</li>
+          </ul>
+        </div>
       
       <form onSubmit = {cambiarTema}>
 

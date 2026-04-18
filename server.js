@@ -8,7 +8,6 @@ const path = require('path')
 const cors = require('cors')
 
 const jwt = require('jsonwebtoken')
-const key = process.env.JWT_KEY
 
 const app = express()
 
@@ -89,9 +88,7 @@ io.on("connection", async (socket) => {
     catch (error) {console.error("Error:", error)} 
     finally {if (connection) connection.release()}
 
-  };
-
-  await update();
+  }; 
 
   socket.on('pedirUpdate', async () => {
     await update();
@@ -245,7 +242,7 @@ io.on("connection", async (socket) => {
         admin: sql[0].admin,
       }
 
-      const token = jwt.sign(userData, key, {expiresIn: '8h'});
+      const token = jwt.sign(userData, process.env.JWT_KEY, {expiresIn: '8h'});
       
       socket.emit('resLogin', {userData: userData, token: token})
 
@@ -261,11 +258,13 @@ io.on("connection", async (socket) => {
 
   socket.on('verificacion', (token) => {
     try {
-      const decodedUser = jwt.verify(token, key);
+      const decodedUser = jwt.verify(token, process.env.JWT_KEY);
       socket.emit('resVerificacion', decodedUser);
     } 
     catch (error){socket.emit('resVerificacion', false)}
-  })
+  });
+
+  update();
 
 });
 
