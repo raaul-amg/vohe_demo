@@ -41,8 +41,8 @@ export default function Login() {
     }, [setUsuario]);
 
     return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '100px' }}>
-      <h2>Inicio de sesión</h2>
+    <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-sm mx-auto my-auto">
+      <h2 className="text-ceet text-4xl font-ceet bg-clip-text mb-8 mx-auto">Inicio de sesión</h2>
       
       <form onSubmit={enviar}>
         <input

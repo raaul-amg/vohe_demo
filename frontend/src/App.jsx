@@ -4,7 +4,7 @@ import { io } from 'socket.io-client';
 import Login from './views/Login'
 import Admin from './views/Admin'
 import Public from './views/Public'
-import './App.css'
+import './index.css'
 
 const url = import.meta.env.DEV ? "http://localhost:8080" : '/';
 const socket = io(url);
@@ -12,12 +12,12 @@ const socket = io(url);
 export default function App() {
 
   const { usuario, setUsuario } = useAuth();
-  // const [cargando, setCargando] = useState(true);
+  const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
     const savedToken = localStorage.getItem('ceettoken');
 
-    socket.on('error', (mensaje) => alert(mensaje));
+    // socket.on('error', (mensaje) => alert(mensaje));
 
     // socket.on('connect_error', (err) => {
     //   console.log("Error de conexión:", err.message);
