@@ -34,18 +34,19 @@ export default function Public() {
 
   const pedirTurno = (intervencion) => {
     const prioridades = {
-      "Apunte técnico": 5,
-      "Punto de información": 4,
-      "Respuesta por alusión directa": 3,
-      "Respuesta normal": 2,
-      Intervención: 1,
+      "Apunte técnico": {prioridad: 5, icono: '../../public/fr_apunteTecnico.png'},
+      "Punto de información": {prioridad: 4, icono: '../../public/fr_puntoInformacion.png'},
+      "Respuesta por alusión directa": {prioridad: 3, icono: '../../public/fr_respuestaDirecta.png'},
+      "Respuesta normal": {prioridad: 2, icono: '../../public/fr_respuestaDirecta.png'},
+      "Intervención": {prioridad: 1, icono: '../../public/fr_intervencionSimple.png'},
     };
 
     socket.emit("pedirTurno", {
       nombre: usuario.nombre,
       delegacion: usuario.delegacion,
       intervencion: intervencion,
-      prioridad: prioridades[intervencion],
+      prioridad: prioridades[intervencion].prioridad,
+      icono: prioridades[intervencion].icono,
       solicitud: true,
     });
 
@@ -77,15 +78,20 @@ export default function Public() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center w-full gap-7">
-      <h1>Vista pública</h1>
+    <div className="min-h-screen flex flex-col justify-top items-center w-fulls py-4 gap-2">
 
-      <div>
-        <span className="text-gray-400 font-bold font-ceet">
+      <div className="w-full flex-row justify-between px-4 grid grid-cols-7">
+        <span className="text-gray-400 font-bold font-ceet py-2 col-span-6 justify-between items-center">
           {usuario.rol !== null
             ? `Has iniciado sesión como: ${usuario.nombre} - ${usuario.delegacion}`
             : `Has iniciado sesión como: ${usuario.nombre} - ${usuario.delegacion} (${usuario.rol})`}
         </span>
+        <button
+        className="border font-ceet text-white border-red-700 bg-red-700 rounded-md col-span-1 transform active:scale-95 transition-transform"
+        type="button"
+        onClick={cerrarSesion}>
+        Cerrar sesión
+        </button>
       </div>
 
       <div className="w-full py-4 flex flex-col justify-center overflow-hidden">
@@ -107,39 +113,43 @@ export default function Public() {
 
       <br />
 
-      <div>
-        <h2>Turnos</h2>
+      <div className="w-screen">
 
-        <div>
-          <span>
+        <div className="flex flex-row w-full gap-1">
+          <div className="grid grid-cols-5 gap-3 w-full h-10 justify-between items-center px-4">
             {asamblea.turnoAbierto ? (
               <>
                 <button
                   type="button"
+                  className="bg-ceet rounded-md font-ceet text-white h-full col-span-1"
                   onClick={() => pedirTurno("Apunte técnico")}
                 >
                   Apunte técnico
                 </button>
                 <button
                   type="button"
+                  className="bg-ceet rounded-md font-ceet text-white h-full col-span-1"
                   onClick={() => pedirTurno("Punto de información")}
                 >
                   Punto de información
                 </button>
                 <button
                   type="button"
+                  className="bg-ceet rounded-md font-ceet text-white h-full col-span-1"
                   onClick={() => pedirTurno("Respuesta por alusión directa")}
                 >
                   Respuesta por alusión directa
                 </button>
                 <button
                   type="button"
+                  className="bg-ceet rounded-md font-ceet text-white h-full col-span-1"
                   onClick={() => pedirTurno("Respuesta normal")}
                 >
                   Respuesta normal
                 </button>
                 <button
                   type="button"
+                  className="bg-ceet rounded-md font-ceet text-white h-full col-span-1"
                   onClick={() => pedirTurno("Intervención")}
                 >
                   Intervención
@@ -148,44 +158,36 @@ export default function Public() {
             ) : (
               <span>Turno cerrado (womp womp)</span>
             )}
-          </span>
+          </div>
         </div>
 
         <br />
 
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-5 p-4">
           {asamblea.turnos.map((turno, index) => (
-            <div className="flex flex-row" key={turno.id}>
-              <div className="flex flex-row gap-5 w-full border border-ceet radius-md">
-                <span className="font-semibold text-gray-600 ">
+            <div className="flex flex-row w-full gap-1" key={turno.id}>
+              <div className="grid grid-cols-7 gap-3 w-full h-10 justify-between items-center">
+                <div className="h-full flex flex-col justify-center items-center font-semibold bg-ceet text-white border border-ceet col-span-1">
                   {index + 1}.
-                </span>
-                <span className="font-semibold text-ceet">
-                  {turno.nombre} - {turno.delegacion}:
-                </span>
-                <span className="text-gray-600">{turno.intervencion}</span>
-              </div>
-              <span className="border border-red-800">
+                </div>
+                <div className="h-full flex flex-col justify-center items-center font-ceet text-ceet font-bold border border-ceet col-span-2">
+                  {turno.nombre} - {turno.delegacion}
+                </div>
+                <img src={turno.icono} alt={turno.intervencion} className="w-6 h-6 object-contain"/>
+              
                 {turno.nombre === usuario.nombre &&
-                turno.delegacion === usuario.delegacion ? (
-                  <button type="button" onClick={() => cortarTurno(turno)}>
+                turno.delegacion === usuario.delegacion ? ( <>
+                  <div className="h-full flex flex-col justify-center items-center font-ceet text-ceet border border-ceet col-span-2">{turno.intervencion}</div><button className="border border-red-800 font-ceet text-red-800 h-full col-span-1" type="button" onClick={() => cortarTurno(turno)}>
                     Cortar turno
                   </button>
-                ) : (
-                  ""
+                </> ) : ( <>
+                  <div className="h-full flex flex-col justify-center items-center font-ceet text-ceet border border-ceet col-span-3">{turno.intervencion}</div> </>
                 )}
-              </span>
+              </div>
             </div>
           ))}
         </div>
       </div>
-      <button
-        className="border border-red-800 radius-md"
-        type="button"
-        onClick={cerrarSesion}
-      >
-        Cerrar sesión
-      </button>
     </div>
   );
 }

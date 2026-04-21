@@ -122,17 +122,21 @@ export default function Admin(){
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '100px' }}>
-      <h1>Panel de control</h1>
+    <div className="min-h-screen flex flex-col justify-top items-center w-fulls py-4 gap-2">
 
-      <div>
-          <h4>Quien soy</h4>
-          <ul>
-            <li>{usuario.nombre}</li>
-            <li>{usuario.delegacion}</li>
-            <li>{usuario.rol}</li>
-          </ul>
-        </div>
+      <div className="w-full flex-row justify-between px-4 grid grid-cols-7">
+        <span className="text-gray-400 font-bold font-ceet py-2 col-span-6 justify-between items-center">
+          {usuario.rol !== null
+            ? `Has iniciado sesión como: ${usuario.nombre} - ${usuario.delegacion}`
+            : `Has iniciado sesión como: ${usuario.nombre} - ${usuario.delegacion} (${usuario.rol})`}
+        </span>
+        <button
+        className="border font-ceet text-white border-red-700 bg-red-700 rounded-md col-span-1 transform active:scale-95 transition-transform"
+        type="button"
+        onClick={cerrarSesion}>
+        Cerrar sesión
+        </button>
+      </div>
       
       <form onSubmit = {cambiarTema}>
 
@@ -200,18 +204,22 @@ export default function Admin(){
         <span>{asamblea.turnoAbierto ? <button type="button" onClick={() => socket.emit('cerrarTurno')}>Cerrar Turno</button> : <button type="button" onClick={() => socket.emit('abrirTurno')}>Abrir Turno</button>}</span>
       </div>
 
-      <div>
-        {asamblea.turnos.map((turno, index) => 
-        <div key={turno.id}>
-          <div>
-            <span>{index + 1 + ". "}</span>
-            <span>{`${turno.nombre} - ${turno.delegacion}: `}</span>
-            <span>{turno.intervencion}</span>
-          </div>
-          <button type="button" onClick={() => socket.emit('eliminarTurno', turno.id)}>Eliminar</button>
+      <div className="flex flex-col gap-5 p-4 w-full">
+          {asamblea.turnos.map((turno, index) => (
+            <div className="flex flex-row w-full gap-1" key={turno.id}>
+              <div className="grid grid-cols-7 gap-3 w-full h-10 justify-between items-center">
+                <div className="h-full flex flex-col justify-center items-center font-semibold bg-ceet text-white border border-ceet col-span-1">
+                  {index + 1}.
+                </div>
+                <div className="h-full flex flex-col justify-center items-center font-ceet text-ceet font-bold border border-ceet col-span-2">
+                  {turno.nombre} - {turno.delegacion}
+                </div>
+                  <div className="h-full flex flex-col justify-center items-center font-ceet text-ceet border border-ceet col-span-3">{turno.intervencion}</div>
+                <button className="col-span-1" type="button" onClick={() => socket.emit('eliminarTurno', turno.id)}>Eliminar</button>
+              </div>
+            </div>
+          ))}
         </div>
-      )}
-      </div>
 
       <button type="button" onClick={cerrarSesion}>Cerrar sesión</button>
 

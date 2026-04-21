@@ -19,7 +19,7 @@
     transform: translateX(0); 
     opacity: 0;
   }
-  5%, 20% { 
+  5%, 10% { 
     transform: translateX(0); 
     opacity: 1;
   }
@@ -27,7 +27,7 @@
     transform: translateX(min(0px, calc(100vw - 100% - 2rem))); 
     opacity: 1;
   }
-  90% {
+  98% {
     transform: translateX(min(0px, calc(100vw - 100% - 2rem)));
     opacity: 1;
   }

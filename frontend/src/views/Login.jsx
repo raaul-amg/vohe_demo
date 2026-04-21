@@ -58,7 +58,7 @@ export default function Login() {
             onChange={(e) => setPassword(e.target.value)}
           />
           <button
-            className="h-9 border border-ceet w-full bg-ceet text-white font-ceet text-center gap-5 rounded-md active:scale-95"
+            className="h-9 border border-ceet w-full bg-ceet text-white font-ceet text-center gap-5 rounded-md transform active:scale-95 transition-transform"
             type="submit"
           >
             Entrar
