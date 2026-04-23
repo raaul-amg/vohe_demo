@@ -5,7 +5,7 @@ import { socket } from '../config/socket'
 export default function Admin(){
 
   const { usuario, setUsuario } = useAuth();
-
+  
   const [tema, setTema] = useState('');
   const [nombre, setNombre] = useState('');
   const [delegacion, setDelegacion] = useState('');
