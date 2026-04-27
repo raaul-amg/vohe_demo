@@ -17,16 +17,6 @@ export default function App() {
   useEffect(() => {
     const savedToken = localStorage.getItem('ceettoken');
 
-    // socket.on('error', (mensaje) => alert(mensaje));
-
-    // socket.on('connect_error', (err) => {
-    //   console.log("Error de conexión:", err.message);
-    //   alert("Has recargado demasiadas veces. Inténtalo más tarde.");
-    //   setCargando(false);
-    //   setUsuario(null);
-    //   socket.disconnect(); 
-    // });
-
     socket.on('resVerificacion', (datos) => {
       if (datos){
         setUsuario(datos);

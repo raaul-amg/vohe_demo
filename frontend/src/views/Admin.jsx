@@ -209,18 +209,22 @@ export default function Admin() {
         onClose={() => toggleOpen("tema")}
         className="relative z-50"
       >
-        <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+        <div className="fixed inset-0 bg-black/30 font-ceet" aria-hidden="true" />
         <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
-          <Dialog.Panel className="mx-auto max-w-sm rounded bg-white">
-            <form onSubmit={(e) => {
-              cambiarTema(e);
-            }}>
-              <h3>Tema</h3>
+          <Dialog.Panel className="mx-auto w-500 h-50 max-w-md max-h-md rounded bg-white">
+            <form
+              onSubmit={(e) => {
+                cambiarTema(e);
+              }}
+              className="flex flex-col justify-center items-center w-full h-full p-5 gap-2"
+            >
+              <h3 className="font-bold">Tema</h3>
               <h2>{asamblea.tema || "Sin tema seleccionado"}</h2>
               <input
                 type="text"
                 list="listaTemas"
                 value={tema}
+                className="h-9 border border-ceet w-full text-ceet font-ceet text-center gap-5 rounded-md"
                 onChange={(e) => setTema(e.target.value)}
                 placeholder="Escribe o selecciona el tema"
               />
@@ -229,87 +233,122 @@ export default function Admin() {
                   <option key={i} value={t.titulo} />
                 ))}
               </datalist>
-              <div className="mt-4 flex justify-end gap-2">
-                      <button type="button" onClick={() => toggleOpen("tema")} className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200">Cancelar</button>
-                      <button type="submit" className="px-4 py-2 text-sm font-medium text-white bg-ceet rounded-md hover:bg-blue-600">Guardar</button>
-                    </div>
+              <div className="mt-4 flex flex-row justify-center items-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => toggleOpen("tema")}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 text-sm font-medium text-white bg-ceet rounded-md hover:bg-blue-600"
+                >
+                  Guardar
+                </button>
+              </div>
             </form>
           </Dialog.Panel>
         </div>
       </Dialog>
       {/* </Transition> */}
 
-      <div className={isOpen["tiempo"] ? "" : "hidden"}>
-        <form>
-          <select id="min" onChange={(e) => setMinutos(e.target.value)}>
-            <option value="null">Sin duración</option>
-            <option value="1">1 min</option>
-            <option value="2">2 min</option>
-            <option value="3">3 min</option>
-            <option value="4">4 min</option>
-            <option value="5" selected="selected">
-              5 min
-            </option>
-          </select>
+      <Dialog
+        open={isOpen["tiempo"]}
+        onClose={() => toggleOpen("tiempo")}
+        className="relative z-50"
+      >
+        <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+        <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
+          <Dialog.Panel className="mx-auto max-w-sm rounded bg-white">
+            <form>
+              <select id="min" onChange={(e) => setMinutos(e.target.value)}>
+                <option value="null">Sin duración</option>
+                <option value="1">1 min</option>
+                <option value="2">2 min</option>
+                <option value="3">3 min</option>
+                <option value="4">4 min</option>
+                <option value="5" selected="selected">
+                  5 min
+                </option>
+              </select>
 
-          <button type="submit">Enviar</button>
-        </form>
-      </div>
+              <button type="submit">Enviar</button>
+            </form>
+          </Dialog.Panel>
+        </div>
+      </Dialog>
 
-      <div className={isOpen["turnoManual"] ? "" : "hidden"}>
-        <form>
-          <h3>Agregar manualmente a un representante</h3>
-          <input
-            type="text"
-            list="listaRepresentantes"
-            onChange={(e) => filtroRepresentante(e.target.value)}
-            placeholder="Representante"
-          />
-          <datalist id="listaRepresentantes">
-            {representantes.map((r, i) => (
-              <option key={i} value={`${r.nombre} - ${r.delegacion}`} />
-            ))}
-          </datalist>
+      <Dialog
+        open={isOpen["turnoManual"]}
+        onClose={() => toggleOpen("turnoManual")}
+        className="relative z-50"
+      >
+        <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+        <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
+          <Dialog.Panel className="mx-auto max-w-sm rounded bg-white">
+            <form>
+              <h3>Agregar manualmente a un representante</h3>
+              <input
+                type="text"
+                list="listaRepresentantes"
+                onChange={(e) => filtroRepresentante(e.target.value)}
+                placeholder="Representante"
+              />
+              <datalist id="listaRepresentantes">
+                {representantes.map((r, i) => (
+                  <option key={i} value={`${r.nombre} - ${r.delegacion}`} />
+                ))}
+              </datalist>
 
-          <br />
+              <br />
 
-          <select
-            value={minutos}
-            onChange={(e) => setMinutos(Number(e.target.value))}
-          >
-            <option value="null">Sin duración</option>
-            <option value="1">1 min</option>
-            <option value="2">2 min</option>
-            <option value="3">3 min</option>
-            <option value="4">4 min</option>
-            <option value="5">5 min</option>
-          </select>
+              <select
+                value={minutos}
+                onChange={(e) => setMinutos(Number(e.target.value))}
+              >
+                <option value="null">Sin duración</option>
+                <option value="1">1 min</option>
+                <option value="2">2 min</option>
+                <option value="3">3 min</option>
+                <option value="4">4 min</option>
+                <option value="5">5 min</option>
+              </select>
 
-          <br />
+              <br />
 
-          <button type="reset" onClick={() => agregarTurno("Apunte técnico")}>
-            Apunte técnico
-          </button>
-          <button
-            type="reset"
-            onClick={() => agregarTurno("Punto de información")}
-          >
-            Punto de información
-          </button>
-          <button
-            type="reset"
-            onClick={() => agregarTurno("Respuesta por alusión directa")}
-          >
-            Respuesta por alusión directa
-          </button>
-          <button type="reset" onClick={() => agregarTurno("Respuesta normal")}>
-            Respuesta normal
-          </button>
-          <button type="reset" onClick={() => agregarTurno("Intervención")}>
-            Intervención
-          </button>
-        </form>
-      </div>
+              <button
+                type="reset"
+                onClick={() => agregarTurno("Apunte técnico")}
+              >
+                Apunte técnico
+              </button>
+              <button
+                type="reset"
+                onClick={() => agregarTurno("Punto de información")}
+              >
+                Punto de información
+              </button>
+              <button
+                type="reset"
+                onClick={() => agregarTurno("Respuesta por alusión directa")}
+              >
+                Respuesta por alusión directa
+              </button>
+              <button
+                type="reset"
+                onClick={() => agregarTurno("Respuesta normal")}
+              >
+                Respuesta normal
+              </button>
+              <button type="reset" onClick={() => agregarTurno("Intervención")}>
+                Intervención
+              </button>
+            </form>
+          </Dialog.Panel>
+        </div>
+      </Dialog>
 
       <h2>Turnos</h2>
 
@@ -351,10 +390,6 @@ export default function Admin() {
           </div>
         ))}
       </div>
-
-      <button type="button" onClick={cerrarSesion}>
-        Cerrar sesión
-      </button>
     </div>
   );
 }
