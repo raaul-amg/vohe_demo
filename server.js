@@ -249,7 +249,7 @@ io.on("connection", async (socket) => {
 
   })
 
-  socket.on('login', async (datos) => {
+  socket.on('loginAdmin', async (datos) => {
 
     let connection;
 
@@ -263,14 +263,43 @@ io.on("connection", async (socket) => {
       }
 
       const userData = {
-        usuario: sql[0].usuario,
         nombre: sql[0].nombre,
         delegacion: sql[0].delegacion,
-        rol: sql[0].rol,
         admin: sql[0].admin,
       }
 
       const token = jwt.sign(userData, process.env.JWT_KEY, {expiresIn: '8h'});
+      
+      socket.emit('resLogin', {userData: userData, token: token})
+
+    } 
+
+    catch (error){
+      console.error(error);
+      io.emit('resLogin', false)
+    } 
+    finally {if (connection) connection.release();}
+
+  });
+
+  socket.on('loginPublic', async (datos) => {
+
+    // De alguna manera, tenemos que limitar las veces que una IP o una MAC cree más de un perfil (2 x si se equivoca) para evitar que se llene de.
+
+    let connection;
+
+    try {
+      connection = await pool.getConnection();
+      
+      await connection.query("INSERT INTO usuarios (nombre, delegacion, admin) VALUES (?, ?, ?)", [datos.nombre, datos.delegacion, datos.admin])
+
+      const userData = {
+        nombre: datos.nombre,
+        delegacion: datos.delegacion,
+        admin: false,
+      }
+
+      const token = jwt.sign(userData, process.env.JWT_KEY, {expiresIn: '12h'});
       
       socket.emit('resLogin', {userData: userData, token: token})
 

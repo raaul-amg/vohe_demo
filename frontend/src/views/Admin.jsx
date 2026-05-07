@@ -4,7 +4,7 @@ import { socket } from "../config/socket";
 import { Dialog } from "@headlessui/react";
 
 export default function Admin() {
-  const { usuario, setUsuario } = useAuth();
+  const { account, setAccount } = useAuth();
 
   const [tema, setTema] = useState("");
   const [nombre, setNombre] = useState("");
@@ -133,7 +133,7 @@ export default function Admin() {
   const cerrarSesion = (e) => {
     e.preventDefault();
     localStorage.removeItem("ceettoken");
-    setUsuario(null);
+    setAccount(null);
   };
 
   const exportarHistorial = () => {
@@ -157,9 +157,9 @@ export default function Admin() {
     <div className="min-h-screen flex flex-col justify-top items-center w-fulls py-4 gap-2">
       <div className="w-full flex-row justify-between px-4 grid grid-cols-7">
         <span className="text-gray-400 font-bold font-ceet py-2 col-span-6 justify-between items-center">
-          {usuario.rol !== null
-            ? `Has iniciado sesión como: ${usuario.nombre} - ${usuario.delegacion}`
-            : `Has iniciado sesión como: ${usuario.nombre} - ${usuario.delegacion} (${usuario.rol})`}
+          {account.rol !== null
+            ? `Has iniciado sesión como: ${account.nombre} - ${account.delegacion}`
+            : `Has iniciado sesión como: ${account.nombre} - ${account.delegacion} (${account.rol})`}
         </span>
         <button
           className="border font-ceet text-white border-red-700 bg-red-700 rounded-md col-span-1 transform active:scale-95 transition-transform"

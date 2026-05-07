@@ -3,7 +3,7 @@ import { useAuth } from "../config/Auth";
 import { socket } from "../config/socket";
 
 export default function Public() {
-  const { usuario, setUsuario } = useAuth();
+  const { account, setAccount } = useAuth();
 
   const [conectado, setConectado] = useState(false);
 
@@ -34,16 +34,22 @@ export default function Public() {
 
   const pedirTurno = (intervencion) => {
     const prioridades = {
-      "Apunte técnico": {prioridad: 5, icono: '../../public/fr_apunteTecnico.png'},
-      "Punto de información": {prioridad: 4, icono: '../../public/fr_puntoInformacion.png'},
-      "Respuesta por alusión directa": {prioridad: 3, icono: '../../public/fr_respuestaDirecta.png'},
-      "Respuesta normal": {prioridad: 2, icono: '../../public/fr_respuestaDirecta.png'},
-      "Intervención": {prioridad: 1, icono: '../../public/fr_intervencionSimple.png'},
+      "Apunte técnico": { prioridad: 5, icono: "/fr_apunteTecnico.png" },
+      "Punto de información": {
+        prioridad: 4,
+        icono: "/fr_puntoInformacion.png",
+      },
+      "Respuesta por alusión directa": {
+        prioridad: 3,
+        icono: "/fr_respuestaDirecta.png",
+      },
+      "Respuesta normal": { prioridad: 2, icono: "/fr_respuestaDirecta.png" },
+      Intervención: { prioridad: 1, icono: "/fr_intervencionSimple.png" },
     };
 
     socket.emit("pedirTurno", {
-      nombre: usuario.nombre,
-      delegacion: usuario.delegacion,
+      nombre: account.nombre,
+      delegacion: account.delegacion,
       intervencion: intervencion,
       prioridad: prioridades[intervencion].prioridad,
       icono: prioridades[intervencion].icono,
@@ -74,31 +80,29 @@ export default function Public() {
   const cerrarSesion = (e) => {
     e.preventDefault();
     localStorage.removeItem("ceettoken");
-    setUsuario(null);
+    setAccount(null);
   };
 
   return (
     <div className="min-h-screen flex flex-col justify-top items-center w-fulls py-4 gap-2">
-
       <div className="w-full flex-row justify-between px-4 grid grid-cols-7">
         <span className="text-gray-400 font-bold font-ceet py-2 col-span-6 justify-between items-center">
-          {usuario.rol !== null
-            ? `Has iniciado sesión como: ${usuario.nombre} - ${usuario.delegacion}`
-            : `Has iniciado sesión como: ${usuario.nombre} - ${usuario.delegacion} (${usuario.rol})`}
+          {account.rol !== null
+            ? `Has iniciado sesión como: ${account.nombre} - ${account.delegacion}`
+            : `Has iniciado sesión como: ${account.nombre} - ${account.delegacion} (${account.rol})`}
         </span>
         <button
-        className="border font-ceet text-white border-red-700 bg-red-700 rounded-md col-span-1 transform active:scale-95 transition-transform"
-        type="button"
-        onClick={cerrarSesion}>
-        Cerrar sesión
+          className="border font-ceet text-white border-red-700 bg-red-700 rounded-md col-span-1 transform active:scale-95 transition-transform"
+          type="button"
+          onClick={cerrarSesion}
+        >
+          Cerrar sesión
         </button>
       </div>
 
-      <div className="w-full py-4 flex flex-col justify-center overflow-hidden">
-        <div className="py-4 bg-ceet text-white">
-          <h2 className="gap-2 text-white font-ceet pl-4 animate-pulse">
-            Ahora hablando sobre...
-          </h2>
+      <div className="w-full py-4 flex flex-col justify-center overflow-hidden px-4 rounded-md">
+        <div className="py-4 bg-ceet text-white rounded-md">
+          <h2 className="gap-2 text-white font-ceet pl-4">Tema actual</h2>
           <div className="w-full overflow-hidden mt-1 @container gap-2">
             <h3 className="text-4xl font-bold text-white font-ceet whitespace-nowrap inline-block animate-reveal w-max pl-4 pr-4">
               {asamblea.tema || "Sin tema seleccionado"}
@@ -113,8 +117,29 @@ export default function Public() {
 
       <br />
 
-      <div className="w-screen">
+      <div className="w-full py-2 flex flex-col justify-center overflow-hidden px-4 rounded-md">
+        <div className="py-4 border border-ceet rounded-md">
+          <h2 className="gap-2 text-ceet font-ceet pl-4 animate-pulse">
+            Ahora hablando...
+          </h2>
+          <div className="flex-row justify-center items-center grid grid-cols-12">
+          <div className="w-full overflow-hidden mt-1 @container gap-2 col-span-10">
+            <h3 className="text-4xl font-bold text-ceet font-ceet whitespace-nowrap inline-block w-max pl-4 pr-4">
+              {account.nombre} - {account.delegacion}
+            </h3>
+          </div>
+          <div className="w-full overflow-hidden mt-1 @container gap-2 col-span-2">
+            <h3 className="text-4xl font-bold text-ceet font-ceet whitespace-nowrap inline-block w-max pl-4 pr-4">
+              1min
+            </h3>
+          </div>
+          </div>
+        </div>
+      </div>
 
+      <br />
+
+      <div className="w-screen">
         <div className="flex flex-row w-full gap-1">
           <div className="grid grid-cols-5 gap-3 w-full h-10 justify-between items-center px-4">
             {asamblea.turnoAbierto ? (
@@ -173,15 +198,32 @@ export default function Public() {
                 <div className="h-full flex flex-col justify-center items-center font-ceet text-ceet font-bold border border-ceet col-span-2">
                   {turno.nombre} - {turno.delegacion}
                 </div>
-                <img src={turno.icono} alt={turno.intervencion} className="w-6 h-6 object-contain"/>
-              
-                {turno.nombre === usuario.nombre &&
-                turno.delegacion === usuario.delegacion ? ( <>
-                  <div className="h-full flex flex-col justify-center items-center font-ceet text-ceet border border-ceet col-span-2">{turno.intervencion}</div><button className="border border-red-800 font-ceet text-red-800 h-full col-span-1" type="button" onClick={() => cortarTurno(turno)}>
-                    Cortar turno
-                  </button>
-                </> ) : ( <>
-                  <div className="h-full flex flex-col justify-center items-center font-ceet text-ceet border border-ceet col-span-3">{turno.intervencion}</div> </>
+                <img
+                  src={turno.icono}
+                  alt={turno.intervencion}
+                  className="w-6 h-6 object-contain"
+                />
+
+                {turno.nombre === account.nombre &&
+                turno.delegacion === account.delegacion ? (
+                  <>
+                    <div className="h-full flex flex-col justify-center items-center font-ceet text-ceet border border-ceet col-span-2">
+                      {turno.intervencion}
+                    </div>
+                    <button
+                      className="border border-red-800 font-ceet text-red-800 h-full col-span-1"
+                      type="button"
+                      onClick={() => cortarTurno(turno)}
+                    >
+                      Cortar turno
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <div className="h-full flex flex-col justify-center items-center font-ceet text-ceet border border-ceet col-span-3">
+                      {turno.intervencion}
+                    </div>{" "}
+                  </>
                 )}
               </div>
             </div>
