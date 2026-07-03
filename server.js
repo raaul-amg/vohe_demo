@@ -85,7 +85,7 @@ io.on("connection", async (socket) => {
     const connection = await pool.getConnection();
 
     try {
-      const [turnosDB] = await connection.query("SELECT * FROM turnos WHERE activo = true ORDER BY prioridad DESC, tiempo_peticion ASC;");
+      const [turnosDB] = await connection.query("SELECT * FROM turnos WHERE (activo = true AND ejecutado = false) OR (ejecutado = true AND hablando = true) ORDER BY prioridad DESC, tiempo_peticion ASC;");
       const [historialDB] = await connection.query("SELECT * FROM historial ORDER BY hora_fin DESC;");
       const [temaDB] = await connection.query("SELECT * FROM tema WHERE activo = true;");
       let tema = "Sin tema seleccionado";
@@ -98,6 +98,8 @@ io.on("connection", async (socket) => {
         prioridad: item.prioridad,
         icono: item.icono,
         solicitud: item.solicitud,
+        hablando: item.hablando,
+        ejecutado: item.ejecutado,
       }))
 
       if (temaDB && temaDB.length > 0){
@@ -186,8 +188,8 @@ io.on("connection", async (socket) => {
     try {
       connection = await pool.getConnection();
       await connection.query(
-        "INSERT INTO turnos (nombre, delegacion, intervencion, prioridad, minutos, solicitud) VALUES (?, ?, ?, ?, ?, ?)",
-        [datos.nombre, datos.delegacion, datos.intervencion, datos.prioridad, datos.minutos, datos.solicitud]
+        "INSERT INTO turnos (nombre, delegacion, intervencion, prioridad, minutos, solicitud, hablando) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        [datos.nombre, datos.delegacion, datos.intervencion, datos.prioridad, datos.minutos, datos.solicitud. datos.hablando]
       );
       await update();
     } 
@@ -204,8 +206,8 @@ io.on("connection", async (socket) => {
     try {
       connection = await pool.getConnection();
       await connection.query(
-        "INSERT INTO turnos (nombre, delegacion, intervencion, prioridad, icono, solicitud) VALUES (?, ?, ?, ?, ?, ?)",
-        [datos.nombre, datos.delegacion, datos.intervencion, datos.prioridad, datos.icono, datos.solicitud]
+        "INSERT INTO turnos (nombre, delegacion, intervencion, prioridad, icono, solicitud, hablando) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        [datos.nombre, datos.delegacion, datos.intervencion, datos.prioridad, datos.icono, datos.solicitud, datos.hablando]
       );
       await update();
     }
@@ -225,6 +227,22 @@ io.on("connection", async (socket) => {
         "UPDATE turnos SET activo = false WHERE id = ? AND nombre = ? AND delegacion = ?",
         [datos.id, datos.nombre, datos.delegacion]
       );
+      await update();
+    } 
+
+    catch (error){console.error(error);} 
+    finally {if (connection) connection.release();}
+
+  })
+
+  socket.on('darPalabra', async (datos) => {
+
+    let connection;
+
+    try {
+      connection = await pool.getConnection();
+      await connection.query(
+        "UPDATE turnos SET hablando = true, ejecutado = true WHERE id = ?", [datos]);
       await update();
     } 
 

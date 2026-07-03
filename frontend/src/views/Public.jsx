@@ -14,6 +14,8 @@ export default function Public() {
     turnoAbierto: true,
   });
 
+  const turnoHablando = asamblea.turnos.find(turno => turno.hablando == 1 || turno.hablando === true);
+
   const [tiempo, setTiempo] = useState(0);
 
   useEffect(() => {
@@ -54,6 +56,8 @@ export default function Public() {
       prioridad: prioridades[intervencion].prioridad,
       icono: prioridades[intervencion].icono,
       solicitud: true,
+      hablando: false,
+      ejecutado: false,
     });
 
     setNombre("");
@@ -84,7 +88,7 @@ export default function Public() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-top items-center w-fulls py-4 gap-2">
+    <div className="min-h-screen flex flex-col justify-top items-center w-fulls py-4 gap-2 bg-white">
       <div className="w-full flex-row justify-between px-4 grid grid-cols-7">
         <span className="text-gray-400 font-bold font-ceet py-2 col-span-6 justify-between items-center">
           {account.rol !== null
@@ -125,14 +129,29 @@ export default function Public() {
           <div className="flex-row justify-center items-center grid grid-cols-12">
           <div className="w-full overflow-hidden mt-1 @container gap-2 col-span-10">
             <h3 className="text-4xl font-bold text-ceet font-ceet whitespace-nowrap inline-block w-max pl-4 pr-4">
-              {account.nombre} - {account.delegacion}
-            </h3>
+            {turnoHablando ? (
+              <>
+                {turnoHablando.nombre} - {turnoHablando.delegacion}
+              </>
+            ) : (
+              <span className="font-ceet text-ceet">No hay nadie hablando</span>
+            )}
+          </h3>
           </div>
-          <div className="w-full overflow-hidden mt-1 @container gap-2 col-span-2">
+
+          {turnoHablando ? (
+              <>
+                <div className="w-full overflow-hidden mt-1 @container gap-2 col-span-2">
             <h3 className="text-4xl font-bold text-ceet font-ceet whitespace-nowrap inline-block w-max pl-4 pr-4">
-              1min
+              1 min
             </h3>
           </div>
+              </>
+            ) : (
+              <> </>
+            )}
+
+          
           </div>
         </div>
       </div>
@@ -181,7 +200,7 @@ export default function Public() {
                 </button>
               </>
             ) : (
-              <span>Turno cerrado (womp womp)</span>
+              <span className="font-ceet text-ceet">Turno cerrado (womp womp)</span>
             )}
           </div>
         </div>
@@ -189,9 +208,11 @@ export default function Public() {
         <br />
 
         <div className="flex flex-col gap-5 p-4">
-          {asamblea.turnos.map((turno, index) => (
+          {asamblea.turnos.filter((turno) => !turno.hablando).map((turno, index) => (
             <div className="flex flex-row w-full gap-1" key={turno.id}>
-              <div className="grid grid-cols-7 gap-3 w-full h-10 justify-between items-center">
+
+              {!turno.ejecutado ? (
+                <div className="grid grid-cols-7 gap-3 w-full h-10 justify-between items-center">
                 <div className="h-full flex flex-col justify-center items-center font-semibold bg-ceet text-white border border-ceet col-span-1">
                   {index + 1}.
                 </div>
@@ -226,6 +247,12 @@ export default function Public() {
                   </>
                 )}
               </div>
+              ) : (
+
+                <></>
+              )}
+
+              
             </div>
           ))}
         </div>

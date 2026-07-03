@@ -117,6 +117,8 @@ export default function Admin() {
       prioridad: prioridades[intervencion],
       minutos: minutos,
       solicitud: false,
+      hablando: false,
+      ejecutado: false
       // que hay de los demás atributos???
     });
 
@@ -154,7 +156,7 @@ export default function Admin() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-top items-center w-fulls py-4 gap-2">
+    <div className="min-h-screen flex flex-col justify-top items-center w-fulls py-4 gap-2 bg-white">
       <div className="w-full flex-row justify-between px-4 grid grid-cols-7">
         <span className="text-gray-400 font-bold font-ceet py-2 col-span-6 justify-between items-center">
           {account.rol !== null
@@ -170,7 +172,7 @@ export default function Admin() {
         </button>
       </div>
 
-      <div className="flex-row gap-3 grid grid-cols-3 px-4">
+      <div className="flex-row gap-3 grid grid-cols-4 px-4">
         <button
           className="col-span-1 border border-ceet font-ceet bg-ceet text-white h-12 rounded-md font-bold"
           type="button"
@@ -198,9 +200,25 @@ export default function Admin() {
             toggleOpen("turnoManual");
           }}
         >
-          Añadir un turno manualmente
+          Añadir turno
         </button>
+
+        <div>
+        <span>
+          {asamblea.turnoAbierto ? (
+            <button type="button" className="col-span-1 border border-ceet font-ceet bg-ceet text-white h-12 rounded-md font-bold" onClick={() => socket.emit("cerrarTurno")}>
+              Cerrar Turno
+            </button>
+          ) : (
+            <button type="button" className="col-span-1 border border-ceet font-ceet bg-ceet text-white h-12 rounded-md font-bold" onClick={() => socket.emit("abrirTurno")}>
+              Abrir Turno
+            </button>
+          )}
+        </span>
       </div>
+      </div>
+
+      
 
       {/* <Transition show={isOpen} enter="transition duration-100 ease-out" enterFrom="transform scale-95 opacity-0" enterTo="transform scale-100 opacity-100" leave="transition duration-75 ease-out" leaveFrom="transform scale-100 opacity-100" leaveTo="transform scale-95 opacity-0" as={Fragment}> */}
 
@@ -218,13 +236,13 @@ export default function Admin() {
               }}
               className="flex flex-col justify-center items-center w-full h-full p-5 gap-2"
             >
-              <h3 className="font-bold">Tema</h3>
-              <h2>{asamblea.tema || "Sin tema seleccionado"}</h2>
+              <h3 className="font-ceet text-ceet">Cambiar tema</h3>
+              <h2 className="font-ceet text-ceet">{`Tema actual: ${asamblea.tema}` || "Sin tema seleccionado"}</h2>
               <input
                 type="text"
                 list="listaTemas"
                 value={tema}
-                className="h-9 border border-ceet w-full text-ceet font-ceet text-center gap-5 rounded-md"
+                className="h-15 border border-ceet w-full text-ceet font-ceet text-center gap-5 rounded-md"
                 onChange={(e) => setTema(e.target.value)}
                 placeholder="Escribe o selecciona el tema"
               />
@@ -237,13 +255,13 @@ export default function Admin() {
                 <button
                   type="button"
                   onClick={() => toggleOpen("tema")}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+                  className="px-4 py-2 text-sm font-ceet text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 text-sm font-medium text-white bg-ceet rounded-md hover:bg-blue-600"
+                  className="px-4 py-2 text-sm font-ceet text-white bg-ceet rounded-md hover:bg-blue-600"
                 >
                   Guardar
                 </button>
@@ -350,26 +368,12 @@ export default function Admin() {
         </div>
       </Dialog>
 
-      <h2>Turnos</h2>
-
-      <div>
-        <span>
-          {asamblea.turnoAbierto ? (
-            <button type="button" onClick={() => socket.emit("cerrarTurno")}>
-              Cerrar Turno
-            </button>
-          ) : (
-            <button type="button" onClick={() => socket.emit("abrirTurno")}>
-              Abrir Turno
-            </button>
-          )}
-        </span>
-      </div>
+      <h2 className="font-ceet text-ceet">Turnos</h2>
 
       <div className="flex flex-col gap-5 p-4 w-full">
-        {asamblea.turnos.map((turno, index) => (
+        {asamblea.turnos.filter((turno) => !turno.hablando).map((turno, index) => (
           <div className="flex flex-row w-full gap-1" key={turno.id}>
-            <div className="grid grid-cols-7 gap-3 w-full h-10 justify-between items-center">
+            <div className="grid grid-cols-8 gap-3 w-full h-10 justify-between items-center">
               <div className="h-full flex flex-col justify-center items-center font-semibold bg-ceet text-white border border-ceet col-span-1">
                 {index + 1}.
               </div>
@@ -380,7 +384,14 @@ export default function Admin() {
                 {turno.intervencion}
               </div>
               <button
-                className="col-span-1"
+                className="border border-ceet font-ceet text-black h-full col-span-1"
+                type="button"
+                onClick={() => socket.emit("darPalabra", turno.id)}
+              >
+                Dar la palabra
+              </button>
+              <button
+                className="border border-red-800 font-ceet text-red-800 h-full col-span-1"
                 type="button"
                 onClick={() => socket.emit("eliminarTurno", turno.id)}
               >
