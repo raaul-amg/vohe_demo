@@ -67,6 +67,9 @@ let asamblea = {
   turnoAbierto: true,
 };
 
+let temporizador = null;
+let tiempoRestante = 0;
+
 // io.use(async (socket, next) => {
 //   try {
 //     await rateLimiter.consume(socket.handshake.address);
@@ -88,14 +91,18 @@ io.on("connection", async (socket) => {
       const [turnosDB] = await connection.query("SELECT * FROM turnos WHERE (activo = true AND ejecutado = false) OR (ejecutado = true AND hablando = true) ORDER BY prioridad DESC, tiempo_peticion ASC;");
       const [historialDB] = await connection.query("SELECT * FROM historial ORDER BY hora_fin DESC;");
       const [temaDB] = await connection.query("SELECT * FROM tema WHERE activo = true;");
+      const [[{ minutos }]] = await connection.query("SELECT minutos FROM asamblea WHERE activo = true");
+      const [archivo] = await connection.query("SELECT archivo FROM tema WHERE activo = true");
+      const [[{ hayArchivo }]] = await connection.query("SELECT hayArchivo FROM tema WHERE activo = true");
       let tema = "Sin tema seleccionado";
-      
+
       const turnos = turnosDB.map(item => ({
         id: item.id,
         nombre: item.nombre,
         delegacion: item.delegacion,
         intervencion: item.intervencion,
         prioridad: item.prioridad,
+        minutos: item.minutos,
         icono: item.icono,
         solicitud: item.solicitud,
         hablando: item.hablando,
@@ -111,8 +118,13 @@ io.on("connection", async (socket) => {
         turnos: turnos,
         historial: historialDB,
         tema: tema,
-        turnoAbierto: temaDB[0].abierto
+        archivo: archivo,
+        hayArchivo: hayArchivo,
+        turnoAbierto: temaDB[0].abierto,
+        minutos: minutos
       })
+
+      io.emit('tiempo', tiempoRestante);
       
     } 
     catch (error) {console.error("Error:", error)} 
@@ -189,7 +201,7 @@ io.on("connection", async (socket) => {
       connection = await pool.getConnection();
       await connection.query(
         "INSERT INTO turnos (nombre, delegacion, intervencion, prioridad, minutos, solicitud, hablando) VALUES (?, ?, ?, ?, ?, ?, ?)",
-        [datos.nombre, datos.delegacion, datos.intervencion, datos.prioridad, datos.minutos, datos.solicitud. datos.hablando]
+        [datos.nombre, datos.delegacion, datos.intervencion, datos.prioridad, datos.minutos, datos.solicitud, datos.hablando]
       );
       await update();
     } 
@@ -206,8 +218,8 @@ io.on("connection", async (socket) => {
     try {
       connection = await pool.getConnection();
       await connection.query(
-        "INSERT INTO turnos (nombre, delegacion, intervencion, prioridad, icono, solicitud, hablando) VALUES (?, ?, ?, ?, ?, ?, ?)",
-        [datos.nombre, datos.delegacion, datos.intervencion, datos.prioridad, datos.icono, datos.solicitud, datos.hablando]
+        "INSERT INTO turnos (nombre, delegacion, intervencion, prioridad, minutos, icono, solicitud, hablando) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        [datos.nombre, datos.delegacion, datos.intervencion, datos.prioridad, datos.minutos, datos.icono, datos.solicitud, datos.hablando]
       );
       await update();
     }
@@ -241,9 +253,70 @@ io.on("connection", async (socket) => {
 
     try {
       connection = await pool.getConnection();
+      await connection.query("UPDATE turnos SET hablando = false WHERE hablando = true");
       await connection.query(
         "UPDATE turnos SET hablando = true, ejecutado = true WHERE id = ?", [datos]);
+      
+      const [rows] = await connection.query("SELECT minutos FROM turnos WHERE id = ?", [datos]);
+
+      if (rows.length > 0 && rows[0].minutos) {
+      tiempoRestante = rows[0].minutos * 60; 
+
+      if (temporizador) clearInterval(temporizador);
+
+      io.emit('tiempo', tiempoRestante);
+
+      temporizador = setInterval(() => {
+        tiempoRestante--;
+        io.emit('tiempo', tiempoRestante);
+
+        if (tiempoRestante <= 0) {
+          clearInterval(temporizador);
+          io.emit('tiempo', 0);
+        }
+      }, 1000);
+    }
+      
+        await update();
+    } 
+
+    catch (error){console.error(error);} 
+    finally {if (connection) connection.release();}
+
+  })
+
+  socket.on('cambiarTiempo', async (datos) => {
+
+    let connection;
+
+    try {
+      connection = await pool.getConnection();
+      await connection.query(
+        "UPDATE asamblea SET minutos = ? WHERE activo = true", [datos.minutos]);
       await update();
+    } 
+
+    catch (error){console.error(error);} 
+    finally {if (connection) connection.release();}
+
+  })
+
+  socket.on('terminarTurno', async () => {
+
+    let connection;
+
+    try {
+      connection = await pool.getConnection();
+      await connection.query(
+        "UPDATE turnos SET hablando = false, activo = false WHERE hablando = true");
+      
+      if (temporizador) {
+        clearInterval(temporizador);
+        tiempoRestante = 0;
+        io.emit('tiempo', 0);
+      }
+      
+        await update();
     } 
 
     catch (error){console.error(error);} 

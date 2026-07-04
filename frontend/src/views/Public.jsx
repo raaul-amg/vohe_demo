@@ -11,12 +11,17 @@ export default function Public() {
     turnos: [],
     historial: [],
     tema: "",
+    archivo: "",
+    hayArchivo: false,
     turnoAbierto: true,
+    minutos: 0,
   });
 
-  const turnoHablando = asamblea.turnos.find(turno => turno.hablando == 1 || turno.hablando === true);
-
   const [tiempo, setTiempo] = useState(0);
+
+  const turnoHablando = asamblea.turnos.find(
+    (turno) => turno.hablando == 1 || turno.hablando === true,
+  );
 
   useEffect(() => {
     socket.on("estadoActualizado", (estado) => {
@@ -54,6 +59,7 @@ export default function Public() {
       delegacion: account.delegacion,
       intervencion: intervencion,
       prioridad: prioridades[intervencion].prioridad,
+      minutos: asamblea.minutos,
       icono: prioridades[intervencion].icono,
       solicitud: true,
       hablando: false,
@@ -113,10 +119,14 @@ export default function Public() {
             </h3>
           </div>
         </div>
-
-        <h2 className="py-2 text-ceet font-ceet pl-4">
-          Descargar la documentación de este punto
-        </h2>
+        {asamblea.hayArchivo ? (
+          <a className="py-2 text-ceet font-ceet pl-4 hover:underline" href={asamblea.archivo} download>
+            Descargar la documentación de este punto
+          </a>
+        ) : (
+          <h2 className="py-2 text-ceet font-ceet pl-4">No hay un archivo disponible.</h2>
+        )}
+        
       </div>
 
       <br />
@@ -127,31 +137,31 @@ export default function Public() {
             Ahora hablando...
           </h2>
           <div className="flex-row justify-center items-center grid grid-cols-12">
-          <div className="w-full overflow-hidden mt-1 @container gap-2 col-span-10">
-            <h3 className="text-4xl font-bold text-ceet font-ceet whitespace-nowrap inline-block w-max pl-4 pr-4">
+            <div className="w-full overflow-hidden mt-1 @container gap-2 col-span-10">
+              <h3 className="text-4xl font-bold text-ceet font-ceet whitespace-nowrap inline-block w-max pl-4 pr-4">
+                {turnoHablando ? (
+                  <>
+                    {turnoHablando.nombre} - {turnoHablando.delegacion}
+                  </>
+                ) : (
+                  <span className="font-ceet text-ceet">
+                    No hay nadie hablando
+                  </span>
+                )}
+              </h3>
+            </div>
+
             {turnoHablando ? (
               <>
-                {turnoHablando.nombre} - {turnoHablando.delegacion}
-              </>
-            ) : (
-              <span className="font-ceet text-ceet">No hay nadie hablando</span>
-            )}
-          </h3>
-          </div>
-
-          {turnoHablando ? (
-              <>
                 <div className="w-full overflow-hidden mt-1 @container gap-2 col-span-2">
-            <h3 className="text-4xl font-bold text-ceet font-ceet whitespace-nowrap inline-block w-max pl-4 pr-4">
-              1 min
-            </h3>
-          </div>
+                  <h3 className="text-4xl font-bold text-ceet font-ceet whitespace-nowrap inline-block w-max pl-4 pr-4">
+                    {formatTime(tiempo)}
+                  </h3>
+                </div>
               </>
             ) : (
               <> </>
             )}
-
-          
           </div>
         </div>
       </div>
@@ -159,10 +169,11 @@ export default function Public() {
       <br />
 
       <div className="w-screen">
-        <div className="flex flex-row w-full gap-1">
-          <div className="grid grid-cols-5 gap-3 w-full h-10 justify-between items-center px-4">
+        <div className="flex flex-row justify-center items-center w-full gap-1">
+          
             {asamblea.turnoAbierto ? (
               <>
+              <div className="grid grid-cols-5 gap-3 w-full h-10 justify-between items-center px-4">
                 <button
                   type="button"
                   className="bg-ceet rounded-md font-ceet text-white h-full col-span-1"
@@ -198,63 +209,64 @@ export default function Public() {
                 >
                   Intervención
                 </button>
+                </div>
               </>
             ) : (
-              <span className="font-ceet text-ceet">Turno cerrado (womp womp)</span>
+              <span className="font-ceet text-ceet">
+                Turno cerrado (womp womp)
+              </span>
             )}
-          </div>
+          
         </div>
 
         <br />
 
         <div className="flex flex-col gap-5 p-4">
-          {asamblea.turnos.filter((turno) => !turno.hablando).map((turno, index) => (
-            <div className="flex flex-row w-full gap-1" key={turno.id}>
-
-              {!turno.ejecutado ? (
-                <div className="grid grid-cols-7 gap-3 w-full h-10 justify-between items-center">
-                <div className="h-full flex flex-col justify-center items-center font-semibold bg-ceet text-white border border-ceet col-span-1">
-                  {index + 1}.
-                </div>
-                <div className="h-full flex flex-col justify-center items-center font-ceet text-ceet font-bold border border-ceet col-span-2">
-                  {turno.nombre} - {turno.delegacion}
-                </div>
-                <img
-                  src={turno.icono}
-                  alt={turno.intervencion}
-                  className="w-6 h-6 object-contain"
-                />
-
-                {turno.nombre === account.nombre &&
-                turno.delegacion === account.delegacion ? (
-                  <>
-                    <div className="h-full flex flex-col justify-center items-center font-ceet text-ceet border border-ceet col-span-2">
-                      {turno.intervencion}
+          {asamblea.turnos
+            .filter((turno) => !turno.hablando)
+            .map((turno, index) => (
+              <div className="flex flex-row w-full gap-1" key={turno.id}>
+                {!turno.ejecutado ? (
+                  <div className="grid grid-cols-7 gap-3 w-full h-10 justify-between items-center">
+                    <div className="h-full flex flex-col justify-center items-center font-semibold bg-ceet text-white border border-ceet col-span-1">
+                      {index + 1}.
                     </div>
-                    <button
-                      className="border border-red-800 font-ceet text-red-800 h-full col-span-1"
-                      type="button"
-                      onClick={() => cortarTurno(turno)}
-                    >
-                      Cortar turno
-                    </button>
-                  </>
+                    <div className="h-full flex flex-col justify-center items-center font-ceet text-ceet font-bold border border-ceet col-span-2">
+                      {turno.nombre} - {turno.delegacion}
+                    </div>
+                    <img
+                      src={turno.icono}
+                      alt={turno.intervencion}
+                      className="w-6 h-6 object-contain"
+                    />
+
+                    {turno.nombre === account.nombre &&
+                    turno.delegacion === account.delegacion ? (
+                      <>
+                        <div className="h-full flex flex-col justify-center items-center font-ceet text-ceet border border-ceet col-span-2">
+                          {turno.intervencion}
+                        </div>
+                        <button
+                          className="border border-red-800 font-ceet text-red-800 h-full col-span-1"
+                          type="button"
+                          onClick={() => cortarTurno(turno)}
+                        >
+                          Cortar turno
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <div className="h-full flex flex-col justify-center items-center font-ceet text-ceet border border-ceet col-span-3">
+                          {turno.intervencion}
+                        </div>{" "}
+                      </>
+                    )}
+                  </div>
                 ) : (
-                  <>
-                    <div className="h-full flex flex-col justify-center items-center font-ceet text-ceet border border-ceet col-span-3">
-                      {turno.intervencion}
-                    </div>{" "}
-                  </>
+                  <></>
                 )}
               </div>
-              ) : (
-
-                <></>
-              )}
-
-              
-            </div>
-          ))}
+            ))}
         </div>
       </div>
     </div>

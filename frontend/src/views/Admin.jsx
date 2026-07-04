@@ -10,7 +10,6 @@ export default function Admin() {
   const [nombre, setNombre] = useState("");
   const [delegacion, setDelegacion] = useState("");
   const [minutos, setMinutos] = useState(3);
-  const [tiempo, setTiempo] = useState(0);
 
   const [conectado, setConectado] = useState(false);
 
@@ -18,8 +17,17 @@ export default function Admin() {
     turnos: [],
     historial: [],
     tema: "",
+    archivo: "",
+    hayArchivo: false,
     turnoAbierto: true,
+    minutos: 0,
   });
+
+  const [tiempo, setTiempo] = useState(0);
+
+  const turnoHablando = asamblea.turnos.find(
+    (turno) => turno.hablando == 1 || turno.hablando === true,
+  );
 
   const odd = [
     {
@@ -69,7 +77,6 @@ export default function Admin() {
     });
 
     socket.on("tiempo", (t) => setTiempo(t));
-
     socket.emit("pedirUpdate");
 
     return () => {
@@ -89,6 +96,18 @@ export default function Admin() {
 
     setTema("");
     toggleOpen("tema");
+  };
+
+  const cambiarTiempo = (e) => {
+    e.preventDefault();
+
+    socket.emit("cambiarTiempo", {
+      minutos: minutos,
+    });
+
+    setMinutos(0);
+    toggleOpen("tiempo");
+
   };
 
   const filtroRepresentante = (e) => {
@@ -130,6 +149,10 @@ export default function Admin() {
     const m = Math.floor(secs / 60);
     const s = secs % 60;
     return `${m}:${s < 10 ? "0" : ""}${s}`;
+  };
+
+  const terminarTurno = () => {
+    socket.emit('terminarTurno');
   };
 
   const cerrarSesion = (e) => {
@@ -279,9 +302,10 @@ export default function Admin() {
       >
         <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
         <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
-          <Dialog.Panel className="mx-auto max-w-sm rounded bg-white">
-            <form>
-              <select id="min" onChange={(e) => setMinutos(e.target.value)}>
+          <Dialog.Panel className="mx-auto w-500 h-50 max-w-md max-h-md rounded bg-white flex flex-col justify-center items-center">
+            <h3 className="font-ceet text-ceet">Cambiar tiempo</h3>
+            <form onSubmit={(e) => cambiarTiempo(e)}>
+              <select id="min" className="font-ceet text-ceet" onChange={(e) => setMinutos(e.target.value)}>
                 <option value="null">Sin duración</option>
                 <option value="1">1 min</option>
                 <option value="2">2 min</option>
@@ -292,7 +316,7 @@ export default function Admin() {
                 </option>
               </select>
 
-              <button type="submit">Enviar</button>
+              <button className="font-ceet text-ceet" type="submit">Enviar</button>
             </form>
           </Dialog.Panel>
         </div>
@@ -305,14 +329,15 @@ export default function Admin() {
       >
         <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
         <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
-          <Dialog.Panel className="mx-auto max-w-sm rounded bg-white">
-            <form>
+          <Dialog.Panel className="mx-auto w-500 h-50 max-w-md max-h-md rounded bg-white flex flex-col justify-center items-center">
+            <form className="font-ceet text-ceet flex flex-col justify-center items-center gap-2">
               <h3>Agregar manualmente a un representante</h3>
               <input
                 type="text"
                 list="listaRepresentantes"
                 onChange={(e) => filtroRepresentante(e.target.value)}
                 placeholder="Representante"
+                className="border border-ceet rounded-md"
               />
               <datalist id="listaRepresentantes">
                 {representantes.map((r, i) => (
@@ -325,6 +350,7 @@ export default function Admin() {
               <select
                 value={minutos}
                 onChange={(e) => setMinutos(Number(e.target.value))}
+                className="border border-ceet rounded-md"
               >
                 <option value="null">Sin duración</option>
                 <option value="1">1 min</option>
@@ -335,8 +361,8 @@ export default function Admin() {
               </select>
 
               <br />
-
-              <button
+              <div className="flex flex-row justify-center items-center">
+                <button
                 type="reset"
                 onClick={() => agregarTurno("Apunte técnico")}
               >
@@ -363,12 +389,76 @@ export default function Admin() {
               <button type="reset" onClick={() => agregarTurno("Intervención")}>
                 Intervención
               </button>
+              </div>
             </form>
           </Dialog.Panel>
         </div>
       </Dialog>
 
-      <h2 className="font-ceet text-ceet">Turnos</h2>
+      <div className="w-full py-4 flex flex-col justify-center overflow-hidden px-4 rounded-md">
+        <div className="py-4 bg-ceet text-white rounded-md">
+          <h2 className="gap-2 text-white font-ceet pl-4">Tema actual</h2>
+          <div className="w-full overflow-hidden mt-1 @container gap-2">
+            <h3 className="text-4xl font-bold text-white font-ceet whitespace-nowrap inline-block animate-reveal w-max pl-4 pr-4">
+              {asamblea.tema || "Sin tema seleccionado"}
+            </h3>
+          </div>
+        </div>
+
+        <h2 className="py-2 text-ceet font-ceet pl-4">
+          Descargar la documentación de este punto
+        </h2>
+      </div>
+
+      <div className="w-full py-2 flex-col justify-center overflow-hidden px-4 gap-2 rounded-md grid grid-cols-10">
+        <div className="py-4 border border-ceet rounded-md col-span-8">
+          <h2 className="gap-2 text-ceet font-ceet pl-4 animate-pulse">
+            Ahora hablando...
+          </h2>
+          <div className="flex-row justify-center items-center grid grid-cols-12">
+            <div className="w-full overflow-hidden mt-1 @container gap-2 col-span-10">
+              <h3 className="text-4xl font-bold text-ceet font-ceet whitespace-nowrap inline-block w-max pl-4 pr-4">
+                {turnoHablando ? (
+                  <>
+                    {turnoHablando.nombre} - {turnoHablando.delegacion}
+                  </>
+                ) : (
+                  <span className="font-ceet text-ceet">
+                    No hay nadie hablando
+                  </span>
+                )}
+              </h3>
+            </div>
+
+            {turnoHablando ? (
+              <>
+                <div className="w-full overflow-hidden mt-1 @container gap-2 col-span-2">
+                  <h3 className="text-4xl font-bold text-ceet font-ceet whitespace-nowrap inline-block w-max pl-4 pr-4">
+                    {formatTime(tiempo)}
+                  </h3>
+                </div>
+              </>
+            ) : (
+              <> </>
+            )}
+          </div>
+        </div>
+        <div className="py-4 border border-ceet rounded-md col-span-2 flex flex-col justify-center items-center">
+          <button onClick={() => terminarTurno()} className="font-ceet text-ceet h-full">
+            Terminar turno
+          </button>
+        </div>
+      </div>
+
+      <div className=" flex flex-col gap-3 w-full h-10 justify-between items-center px-4">
+            {asamblea.turnoAbierto ? (
+              <h2 className="font-ceet text-ceet flex flex-col justify-center items-center">Turnos (ABIERTO)</h2>
+            ) : (
+              <h2 className="font-ceet text-ceet flex flex-col justify-center items-center">Turnos (CERRADO)</h2>
+            )}
+      </div>
+
+      
 
       <div className="flex flex-col gap-5 p-4 w-full">
         {asamblea.turnos.filter((turno) => !turno.hablando).map((turno, index) => (
