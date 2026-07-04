@@ -32,30 +32,25 @@ export default function Admin() {
   const odd = [
     {
       titulo: "1. Aprobación, si procede, del orden del día.",
-      archivo: "/1.ODD.pdf",
     },
     {
       titulo:
         "2. Aprobación, si procede, del acta de la asamblea general anterior.",
-      archivo: " ",
     },
     {
       titulo: "3. Lectura y puesta en conocimiento de documentación relevante.",
-      archivo: "/3.Dimision_A.Espada.pdf",
     },
     {
       titulo:
         "4. Ratificación, si procede, del nuevo modelo de acreditaciones.",
-      archivo: "/4.AcreditacionRepresentatividad.pdf",
     },
     {
       titulo:
         "5. Punto de información sobre el estado de las cuentas de la asociación.",
-      archivo: " ",
     },
     {
       titulo: "6. Informe de la Presidencia",
-      archivo: "/6.InformePresidencia.pdf",
+
     },
   ];
 
