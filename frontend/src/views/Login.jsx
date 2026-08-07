@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../config/Auth";
 import { socket } from "../config/socket";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
   const { account, setAccount } = useAuth();
@@ -10,6 +11,9 @@ export default function Login() {
 
   const [nombre, setNombre] = useState("");
   const [delegacion, setDelegacion] = useState("");
+
+  const navigate = useNavigate();
+  const handleGoToPage = () => navigate("/estrado");
 
   const enviarPublic = (e) => {
     e.preventDefault();
@@ -84,6 +88,11 @@ export default function Login() {
             className="h-9 border border-ceet w-full bg-white text-ceet font-ceet text-center gap-5 rounded-md transform active:scale-95 transition-transform"
             type="button" onClick={() => {toggleHidden("inicio"); toggleHidden("admin")}}>
             Entrar como administrador
+          </button>
+          <button
+            className="h-9 w-full bg-white text-ceet font-ceet text-center gap-5 rounded-md transform active:scale-95 transition-transform"
+            type="button" onClick={handleGoToPage}>
+            Pantalla del estrado
           </button>
       </div>
       </div>

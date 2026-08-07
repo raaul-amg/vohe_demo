@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from './config/Auth'
 import { io } from 'socket.io-client';
+import { Routes, Route, Navigate } from "react-router-dom";
 import Login from './views/Login'
+import Estrado from "./pages/Estrado";
 import Admin from './views/Admin'
 import Public from './views/Public'
 import Countdown from './views/Countdown'
@@ -85,11 +87,24 @@ export default function App() {
   //     </div>
   //   )
   // }
-  
-  if (account === null) { return <Login/> }
-  
-  if (account.admin === 1 || account.admin === true) { return <Admin/> } 
-  
-  return <Public/>;
-  
+    return (
+      <Routes>
+          <Route path="/estrado" element={<Estrado />} />
+
+          <Route
+            path="/"
+            element={
+              account === null ? (
+                <Login />
+              ) : account.admin === 1 || account.admin === true ? (
+                <Admin />
+              ) : (
+                <Public />
+              )
+            }
+          />
+
+          <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    )
   }
