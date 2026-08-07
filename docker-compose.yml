@@ -12,7 +12,9 @@ services:
       - vohe_ceet
 
   backend:
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile
     container_name: vohe_backend
     restart: unless-stopped
     env_file: .env
@@ -22,15 +24,14 @@ services:
       - vohe_ceet
 
   nginx:
-    image: nginx:latest
+    build: 
+      context: .
+      dockerfile: Dockerfile.nginx
     container_name: nginx-proxy
     restart: unless-stopped
     ports:
       - "80:80"
       - "443:443"
-    volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./frontend/dist:/usr/share/nginx/html:ro
     depends_on:
       - backend
     networks:

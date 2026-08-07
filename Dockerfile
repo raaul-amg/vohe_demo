@@ -1,7 +1,12 @@
-FROM node:24-alpine
-RUN apk update && apk upgrade
+FROM node:22-alpine
 WORKDIR /app
+
+# Instalamos solo las dependencias necesarias para producción
 COPY package*.json ./
-RUN npm install
-COPY . .
+RUN npm install --omit=dev
+
+# Copiamos el backend
+COPY server.js ./
+
+EXPOSE 8080
 CMD ["node", "server.js"]
