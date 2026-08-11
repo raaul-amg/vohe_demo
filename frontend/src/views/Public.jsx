@@ -177,6 +177,13 @@ export default function Public() {
                 <button
                   type="button"
                   className="bg-ceet rounded-md font-ceet text-white h-full col-span-1"
+                  onClick={() => pedirTurno("Punto de orden")}
+                >
+                  Apunte técnico
+                </button>
+                <button
+                  type="button"
+                  className="bg-ceet rounded-md font-ceet text-white h-full col-span-1"
                   onClick={() => pedirTurno("Apunte técnico")}
                 >
                   Apunte técnico

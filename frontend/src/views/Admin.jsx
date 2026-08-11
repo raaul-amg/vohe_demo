@@ -116,11 +116,12 @@ export default function Admin() {
       return alert("Falta nombre o delegación");
 
     const prioridades = {
+      "Punto de orden": 6,
       "Apunte técnico": 5,
       "Punto de información": 4,
       "Respuesta por alusión directa": 3,
       "Respuesta normal": 2,
-      Intervención: 1,
+      "Intervención": 1,
     };
 
     socket.emit("agregarTurno", {
@@ -348,16 +349,20 @@ export default function Admin() {
                 className="border border-ceet rounded-md"
               >
                 <option value="null">Sin duración</option>
+                <option value="0.5">30s</option>
                 <option value="1">1 min</option>
-                <option value="2">2 min</option>
-                <option value="3">3 min</option>
-                <option value="4">4 min</option>
                 <option value="5">5 min</option>
               </select>
 
               <br />
               <div className="flex flex-row justify-center items-center">
-                <button
+              <button
+                type="reset"
+                onClick={() => agregarTurno("Punto de orden")}
+              >
+                Punto de orden
+              </button>
+              <button
                 type="reset"
                 onClick={() => agregarTurno("Apunte técnico")}
               >
