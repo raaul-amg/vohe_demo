@@ -356,13 +356,9 @@ export default function Admin() {
                 onChange={(e) => setMinutos(e.target.value)}
               >
                 <option value="null">Sin duración</option>
+                <option value="0.5">30s</option>
                 <option value="1">1 min</option>
-                <option value="2">2 min</option>
-                <option value="3">3 min</option>
-                <option value="4">4 min</option>
-                <option value="5" selected="selected">
-                  5 min
-                </option>
+                <option value="5">5 min</option>
               </select>
 
               <button className="font-ceet text-ceet" type="submit">
