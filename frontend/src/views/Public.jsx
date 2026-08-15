@@ -173,13 +173,13 @@ export default function Public() {
           
             {asamblea.turnoAbierto ? (
               <>
-              <div className="grid grid-cols-5 gap-3 w-full h-10 justify-between items-center px-4">
+              <div className="grid grid-cols-6 gap-3 w-full h-10 justify-between items-center px-4">
                 <button
                   type="button"
                   className="bg-ceet rounded-md font-ceet text-white h-full col-span-1"
                   onClick={() => pedirTurno("Punto de orden")}
                 >
-                  Apunte técnico
+                  Punto de orden
                 </button>
                 <button
                   type="button"

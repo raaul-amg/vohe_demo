@@ -134,6 +134,22 @@ io.on("connection", async (socket) => {
     await update();
   });
 
+  socket.on('exportarHistorial', async () => {
+    let connection;
+    try {
+      connection = await pool.getConnection();
+      const [rows] = await connection.query(
+        "SELECT nombre, delegacion, intervencion, minutos, tiempo_peticion FROM turnos WHERE ejecutado = 1 ORDER BY tiempo_peticion ASC"
+      );
+      
+      socket.emit('recibirExportacion', rows);
+    } catch (error) {
+      console.error("Error al exportar historial:", error);
+    } finally {
+      if (connection) connection.release();
+    }
+  });
+
   socket.on('actualizarTema', async (datos) => {
     let connection;
     try {

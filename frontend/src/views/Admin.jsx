@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../config/Auth";
 import { socket } from "../config/socket";
 import { Dialog } from "@headlessui/react";
+import * as XLSX from "xlsx";
 
 export default function Admin() {
   const { account, setAccount } = useAuth();
@@ -50,7 +51,6 @@ export default function Admin() {
     },
     {
       titulo: "6. Informe de la Presidencia",
-
     },
   ];
 
@@ -72,6 +72,38 @@ export default function Admin() {
     });
 
     socket.on("tiempo", (t) => setTiempo(t));
+
+    socket.on("recibirExportacion", (data) => {
+      if (!data || data.length === 0) {
+        alert("No hay turnos ejecutados para exportar.");
+        return;
+      }
+
+      const datosExcel = data.map((item) => ({
+        Nombre: item.nombre || "",
+        Delegación: item.delegacion || "",
+        Intervención: item.intervencion || "",
+        Minutos: item.minutos || 0,
+        "Fecha/Hora de Petición": item.tiempo_peticion || "",
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(datosExcel);
+
+      worksheet["!cols"] = [
+        { wch: 20 }, // Ancho para Nombre
+        { wch: 15 }, // Ancho para Delegación
+        { wch: 35 }, // Ancho para Intervención
+        { wch: 10 }, // Ancho para Minutos
+        { wch: 25 }, // Ancho para Fecha/Hora
+      ];
+
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Historial Ejecutados");
+
+      const fecha = new Date().toISOString().slice(0, 10);
+      XLSX.writeFile(workbook, `Historial_Asamblea_${fecha}.xlsx`);
+    });
+
     socket.emit("pedirUpdate");
 
     return () => {
@@ -102,7 +134,6 @@ export default function Admin() {
 
     setMinutos(0);
     toggleOpen("tiempo");
-
   };
 
   const filtroRepresentante = (e) => {
@@ -121,7 +152,7 @@ export default function Admin() {
       "Punto de información": 4,
       "Respuesta por alusión directa": 3,
       "Respuesta normal": 2,
-      "Intervención": 1,
+      Intervención: 1,
     };
 
     socket.emit("agregarTurno", {
@@ -133,7 +164,7 @@ export default function Admin() {
       minutos: minutos,
       solicitud: false,
       hablando: false,
-      ejecutado: false
+      ejecutado: false,
       // que hay de los demás atributos???
     });
 
@@ -148,7 +179,7 @@ export default function Admin() {
   };
 
   const terminarTurno = () => {
-    socket.emit('terminarTurno');
+    socket.emit("terminarTurno");
   };
 
   const cerrarSesion = (e) => {
@@ -158,7 +189,7 @@ export default function Admin() {
   };
 
   const exportarHistorial = () => {
-    // a ver como lo hacemos...
+    socket.emit("exportarHistorial");
   };
 
   const [isOpen, setIsOpen] = useState({
@@ -223,21 +254,34 @@ export default function Admin() {
         </button>
 
         <div>
-        <span>
-          {asamblea.turnoAbierto ? (
-            <button type="button" className="col-span-1 border border-ceet font-ceet bg-ceet text-white h-12 rounded-md font-bold" onClick={() => socket.emit("cerrarTurno")}>
-              Cerrar Turno
-            </button>
-          ) : (
-            <button type="button" className="col-span-1 border border-ceet font-ceet bg-ceet text-white h-12 rounded-md font-bold" onClick={() => socket.emit("abrirTurno")}>
-              Abrir Turno
-            </button>
-          )}
-        </span>
+          <span>
+            {asamblea.turnoAbierto ? (
+              <button
+                type="button"
+                className="col-span-1 border border-ceet font-ceet bg-ceet text-white h-12 rounded-md font-bold"
+                onClick={() => socket.emit("cerrarTurno")}
+              >
+                Cerrar Turno
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="col-span-1 border border-ceet font-ceet bg-ceet text-white h-12 rounded-md font-bold"
+                onClick={() => socket.emit("abrirTurno")}
+              >
+                Abrir Turno
+              </button>
+            )}
+          </span>
+        </div>
+        <button
+          type="button"
+          className="col-span-1 border border-ceet font-ceet bg-ceet text-white h-12 rounded-md font-bold"
+          onClick={exportarHistorial}
+        >
+          Exportar Historial
+        </button>
       </div>
-      </div>
-
-      
 
       {/* <Transition show={isOpen} enter="transition duration-100 ease-out" enterFrom="transform scale-95 opacity-0" enterTo="transform scale-100 opacity-100" leave="transition duration-75 ease-out" leaveFrom="transform scale-100 opacity-100" leaveTo="transform scale-95 opacity-0" as={Fragment}> */}
 
@@ -246,7 +290,10 @@ export default function Admin() {
         onClose={() => toggleOpen("tema")}
         className="relative z-50"
       >
-        <div className="fixed inset-0 bg-black/30 font-ceet" aria-hidden="true" />
+        <div
+          className="fixed inset-0 bg-black/30 font-ceet"
+          aria-hidden="true"
+        />
         <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
           <Dialog.Panel className="mx-auto w-500 h-50 max-w-md max-h-md rounded bg-white">
             <form
@@ -256,7 +303,9 @@ export default function Admin() {
               className="flex flex-col justify-center items-center w-full h-full p-5 gap-2"
             >
               <h3 className="font-ceet text-ceet">Cambiar tema</h3>
-              <h2 className="font-ceet text-ceet">{`Tema actual: ${asamblea.tema}` || "Sin tema seleccionado"}</h2>
+              <h2 className="font-ceet text-ceet">
+                {`Tema actual: ${asamblea.tema}` || "Sin tema seleccionado"}
+              </h2>
               <input
                 type="text"
                 list="listaTemas"
@@ -301,7 +350,11 @@ export default function Admin() {
           <Dialog.Panel className="mx-auto w-500 h-50 max-w-md max-h-md rounded bg-white flex flex-col justify-center items-center">
             <h3 className="font-ceet text-ceet">Cambiar tiempo</h3>
             <form onSubmit={(e) => cambiarTiempo(e)}>
-              <select id="min" className="font-ceet text-ceet" onChange={(e) => setMinutos(e.target.value)}>
+              <select
+                id="min"
+                className="font-ceet text-ceet"
+                onChange={(e) => setMinutos(e.target.value)}
+              >
                 <option value="null">Sin duración</option>
                 <option value="1">1 min</option>
                 <option value="2">2 min</option>
@@ -312,7 +365,9 @@ export default function Admin() {
                 </option>
               </select>
 
-              <button className="font-ceet text-ceet" type="submit">Enviar</button>
+              <button className="font-ceet text-ceet" type="submit">
+                Enviar
+              </button>
             </form>
           </Dialog.Panel>
         </div>
@@ -356,39 +411,42 @@ export default function Admin() {
 
               <br />
               <div className="flex flex-row justify-center items-center">
-              <button
-                type="reset"
-                onClick={() => agregarTurno("Punto de orden")}
-              >
-                Punto de orden
-              </button>
-              <button
-                type="reset"
-                onClick={() => agregarTurno("Apunte técnico")}
-              >
-                Apunte técnico
-              </button>
-              <button
-                type="reset"
-                onClick={() => agregarTurno("Punto de información")}
-              >
-                Punto de información
-              </button>
-              <button
-                type="reset"
-                onClick={() => agregarTurno("Respuesta por alusión directa")}
-              >
-                Respuesta por alusión directa
-              </button>
-              <button
-                type="reset"
-                onClick={() => agregarTurno("Respuesta normal")}
-              >
-                Respuesta normal
-              </button>
-              <button type="reset" onClick={() => agregarTurno("Intervención")}>
-                Intervención
-              </button>
+                <button
+                  type="reset"
+                  onClick={() => agregarTurno("Punto de orden")}
+                >
+                  Punto de orden
+                </button>
+                <button
+                  type="reset"
+                  onClick={() => agregarTurno("Apunte técnico")}
+                >
+                  Apunte técnico
+                </button>
+                <button
+                  type="reset"
+                  onClick={() => agregarTurno("Punto de información")}
+                >
+                  Punto de información
+                </button>
+                <button
+                  type="reset"
+                  onClick={() => agregarTurno("Respuesta por alusión directa")}
+                >
+                  Respuesta por alusión directa
+                </button>
+                <button
+                  type="reset"
+                  onClick={() => agregarTurno("Respuesta normal")}
+                >
+                  Respuesta normal
+                </button>
+                <button
+                  type="reset"
+                  onClick={() => agregarTurno("Intervención")}
+                >
+                  Intervención
+                </button>
               </div>
             </form>
           </Dialog.Panel>
@@ -444,52 +502,59 @@ export default function Admin() {
           </div>
         </div>
         <div className="py-4 border border-ceet rounded-md col-span-2 flex flex-col justify-center items-center">
-          <button onClick={() => terminarTurno()} className="font-ceet text-ceet h-full">
+          <button
+            onClick={() => terminarTurno()}
+            className="font-ceet text-ceet h-full"
+          >
             Terminar turno
           </button>
         </div>
       </div>
 
       <div className=" flex flex-col gap-3 w-full h-10 justify-between items-center px-4">
-            {asamblea.turnoAbierto ? (
-              <h2 className="font-ceet text-ceet flex flex-col justify-center items-center">Turnos (ABIERTO)</h2>
-            ) : (
-              <h2 className="font-ceet text-ceet flex flex-col justify-center items-center">Turnos (CERRADO)</h2>
-            )}
+        {asamblea.turnoAbierto ? (
+          <h2 className="font-ceet text-ceet flex flex-col justify-center items-center">
+            Turnos (ABIERTO)
+          </h2>
+        ) : (
+          <h2 className="font-ceet text-ceet flex flex-col justify-center items-center">
+            Turnos (CERRADO)
+          </h2>
+        )}
       </div>
 
-      
-
       <div className="flex flex-col gap-5 p-4 w-full">
-        {asamblea.turnos.filter((turno) => !turno.hablando).map((turno, index) => (
-          <div className="flex flex-row w-full gap-1" key={turno.id}>
-            <div className="grid grid-cols-8 gap-3 w-full h-10 justify-between items-center">
-              <div className="h-full flex flex-col justify-center items-center font-semibold bg-ceet text-white border border-ceet col-span-1">
-                {index + 1}.
+        {asamblea.turnos
+          .filter((turno) => !turno.hablando)
+          .map((turno, index) => (
+            <div className="flex flex-row w-full gap-1" key={turno.id}>
+              <div className="grid grid-cols-8 gap-3 w-full h-10 justify-between items-center">
+                <div className="h-full flex flex-col justify-center items-center font-semibold bg-ceet text-white border border-ceet col-span-1">
+                  {index + 1}.
+                </div>
+                <div className="h-full flex flex-col justify-center items-center font-ceet text-ceet font-bold border border-ceet col-span-2">
+                  {turno.nombre} - {turno.delegacion}
+                </div>
+                <div className="h-full flex flex-col justify-center items-center font-ceet text-ceet border border-ceet col-span-3">
+                  {turno.intervencion}
+                </div>
+                <button
+                  className="border border-ceet font-ceet text-black h-full col-span-1"
+                  type="button"
+                  onClick={() => socket.emit("darPalabra", turno.id)}
+                >
+                  Dar la palabra
+                </button>
+                <button
+                  className="border border-red-800 font-ceet text-red-800 h-full col-span-1"
+                  type="button"
+                  onClick={() => socket.emit("eliminarTurno", turno.id)}
+                >
+                  Eliminar
+                </button>
               </div>
-              <div className="h-full flex flex-col justify-center items-center font-ceet text-ceet font-bold border border-ceet col-span-2">
-                {turno.nombre} - {turno.delegacion}
-              </div>
-              <div className="h-full flex flex-col justify-center items-center font-ceet text-ceet border border-ceet col-span-3">
-                {turno.intervencion}
-              </div>
-              <button
-                className="border border-ceet font-ceet text-black h-full col-span-1"
-                type="button"
-                onClick={() => socket.emit("darPalabra", turno.id)}
-              >
-                Dar la palabra
-              </button>
-              <button
-                className="border border-red-800 font-ceet text-red-800 h-full col-span-1"
-                type="button"
-                onClick={() => socket.emit("eliminarTurno", turno.id)}
-              >
-                Eliminar
-              </button>
             </div>
-          </div>
-        ))}
+          ))}
       </div>
     </div>
   );
