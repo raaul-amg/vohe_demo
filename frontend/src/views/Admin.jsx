@@ -224,7 +224,7 @@ export default function Admin() {
         </button>
       </div>
 
-      <div className="flex-row gap-3 grid grid-cols-6 px-4">
+      <div className="flex-row gap-3 grid grid-cols-5 px-4">
         <button
           className="col-span-1 border border-ceet font-ceet bg-ceet text-white h-12 rounded-md font-bold"
           type="button"
