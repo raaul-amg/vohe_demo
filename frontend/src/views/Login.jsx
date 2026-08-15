@@ -13,7 +13,10 @@ export default function Login() {
   const [delegacion, setDelegacion] = useState("");
 
   const navigate = useNavigate();
-  const handleGoToPage = () => navigate("/estrado");
+  const handleGoToPage = () => {
+    alert("Esta modalidad no está optimizada para dispositivos móviles :< ¡Próximamente!");
+    navigate("/estrado")
+  };
 
   const enviarPublic = (e) => {
     e.preventDefault();
