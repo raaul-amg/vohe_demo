@@ -82,6 +82,7 @@ export default function Admin() {
       const datosExcel = data.map((item) => ({
         Nombre: item.nombre || "",
         Delegación: item.delegacion || "",
+        Tema: item.tema || "",
         Intervención: item.intervencion || "",
         Minutos: item.minutos || 0,
         "Fecha/Hora de Petición": item.tiempo_peticion || "",
@@ -92,16 +93,17 @@ export default function Admin() {
       worksheet["!cols"] = [
         { wch: 20 }, // Ancho para Nombre
         { wch: 15 }, // Ancho para Delegación
+        { wch: 50 }, // Ancho para Tema
         { wch: 35 }, // Ancho para Intervención
         { wch: 10 }, // Ancho para Minutos
         { wch: 25 }, // Ancho para Fecha/Hora
       ];
 
       const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Historial Ejecutados");
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Historial");
 
       const fecha = new Date().toISOString().slice(0, 10);
-      XLSX.writeFile(workbook, `Historial_Asamblea_${fecha}.xlsx`);
+      XLSX.writeFile(workbook, `HistorialAsamblea_${fecha}.xlsx`);
     });
 
     socket.emit("pedirUpdate");
@@ -222,7 +224,7 @@ export default function Admin() {
         </button>
       </div>
 
-      <div className="flex-row gap-3 grid grid-cols-4 px-4">
+      <div className="flex-row gap-3 grid grid-cols-6 px-4">
         <button
           className="col-span-1 border border-ceet font-ceet bg-ceet text-white h-12 rounded-md font-bold"
           type="button"
@@ -276,7 +278,7 @@ export default function Admin() {
         </div>
         <button
           type="button"
-          className="col-span-1 border border-ceet font-ceet bg-ceet text-white h-12 rounded-md font-bold"
+          className="col-span-1 border border-ceet font-ceet bg-white text-ceet h-12 rounded-md font-bold"
           onClick={exportarHistorial}
         >
           Exportar Historial
@@ -458,10 +460,14 @@ export default function Admin() {
             </h3>
           </div>
         </div>
-
-        <h2 className="py-2 text-ceet font-ceet pl-4">
-          Descargar la documentación de este punto
-        </h2>
+        {asamblea.hayArchivo ? (
+          <a className="py-2 text-ceet font-ceet pl-4 hover:underline" href={asamblea.archivo} download>
+            Descargar la documentación de este punto
+          </a>
+        ) : (
+          <h2 className="py-2 text-ceet font-ceet pl-4">No hay un archivo disponible.</h2>
+        )}
+        
       </div>
 
       <div className="w-full py-2 flex-col justify-center overflow-hidden px-4 gap-2 rounded-md grid grid-cols-10">

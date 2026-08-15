@@ -139,7 +139,7 @@ io.on("connection", async (socket) => {
     try {
       connection = await pool.getConnection();
       const [rows] = await connection.query(
-        "SELECT nombre, delegacion, intervencion, minutos, tiempo_peticion FROM turnos WHERE ejecutado = 1 ORDER BY tiempo_peticion ASC"
+        "SELECT nombre, delegacion, tema, intervencion, minutos, tiempo_peticion FROM turnos WHERE ejecutado = 1 ORDER BY tiempo_peticion ASC"
       );
       
       socket.emit('recibirExportacion', rows);
@@ -214,8 +214,8 @@ io.on("connection", async (socket) => {
     try {
       connection = await pool.getConnection();
       await connection.query(
-        "INSERT INTO turnos (nombre, delegacion, intervencion, prioridad, minutos, solicitud, hablando) VALUES (?, ?, ?, ?, ?, ?, ?)",
-        [datos.nombre, datos.delegacion, datos.intervencion, datos.prioridad, datos.minutos, datos.solicitud, datos.hablando]
+        "INSERT INTO turnos (nombre, delegacion, tema, intervencion, prioridad, minutos, solicitud, hablando) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        [datos.nombre, datos.delegacion, datos.tema, datos.intervencion, datos.prioridad, datos.minutos, datos.solicitud, datos.hablando]
       );
       await update();
     } 
