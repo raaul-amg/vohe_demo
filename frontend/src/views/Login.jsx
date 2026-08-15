@@ -90,7 +90,7 @@ export default function Login() {
           <button
             className="h-9 border border-ceet w-full bg-white text-ceet font-ceet text-center gap-5 rounded-md transform active:scale-95 transition-transform"
             type="button" onClick={() => {toggleHidden("inicio"); toggleHidden("admin")}}>
-            Entrar como administrador
+            Entrar como administrador/a
           </button>
           <button
             className="h-9 w-full bg-white text-ceet font-ceet text-center gap-5 rounded-md transform active:scale-95 transition-transform"
@@ -103,7 +103,7 @@ export default function Login() {
       <div className={isHidden["admin"] ? 'w-full max-w-md' : 'hidden w-full max-w-md'}>
       <div className="bg-white p-8 rounded-xl shadow-lg flex flex-col gap-6 w-full max-w-md">
         <h2 className="text-2xl text-ceet font-ceet font-bold text-center">
-          Entrar como administrador
+          Entrar como administrador/a
         </h2>
         <form className="flex flex-col gap-3" onSubmit={enviarAdmin}>
           <input
